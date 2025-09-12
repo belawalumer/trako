@@ -234,3 +234,124 @@ export async function updateTaskStatus(taskId: string, status: string) {
   revalidateTag('projects-with-tasks');
   revalidateTag('recent-tasks');
 }
+
+// Project Allocation Actions
+export async function createProjectAllocation(formData: FormData) {
+  await requireAuth();
+  const supabase = await createClient();
+  
+  const developerId = formData.get('developer_id') as string;
+  const hoursAllocated = parseInt(formData.get('hours_allocated') as string) || 0;
+  
+  // Get developer's weekly hours to calculate percentage
+  const { data: developer } = await supabase
+    .from('developers')
+    .select('working_hours')
+    .eq('id', developerId)
+    .single();
+  
+  const weeklyHours = developer?.working_hours || 40;
+  const allocationPercentage = Math.min((hoursAllocated / weeklyHours) * 100, 100);
+  
+  const allocationData = {
+    project_id: formData.get('project_id') as string,
+    developer_id: developerId,
+    hours_allocated: hoursAllocated,
+    allocation_percentage: allocationPercentage,
+    start_date: formData.get('start_date') as string || null,
+    end_date: formData.get('end_date') as string || null,
+  };
+
+  const { data, error } = await supabase
+    .from('project_allocations')
+    .insert([allocationData])
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to create allocation: ${error.message}`);
+  }
+
+  // Invalidate cache
+  revalidateTag('projects');
+  revalidateTag('developers');
+  revalidateTag('developers-with-allocations');
+  revalidateTag('allocations');
+  
+  return data;
+}
+
+export async function updateProjectAllocation(id: string, formData: FormData) {
+  await requireAuth();
+  const supabase = await createClient();
+  
+  const hoursAllocated = parseInt(formData.get('hours_allocated') as string) || 0;
+  
+  // Get the developer ID from the existing allocation
+  const { data: existingAllocation } = await supabase
+    .from('project_allocations')
+    .select('developer_id')
+    .eq('id', id)
+    .single();
+  
+  if (!existingAllocation) {
+    throw new Error('Allocation not found');
+  }
+  
+  // Get developer's weekly hours to calculate percentage
+  const { data: developer } = await supabase
+    .from('developers')
+    .select('working_hours')
+    .eq('id', existingAllocation.developer_id)
+    .single();
+  
+  const weeklyHours = developer?.working_hours || 40;
+  const allocationPercentage = Math.min((hoursAllocated / weeklyHours) * 100, 100);
+  
+  const allocationData = {
+    hours_allocated: hoursAllocated,
+    allocation_percentage: allocationPercentage,
+    start_date: formData.get('start_date') as string || null,
+    end_date: formData.get('end_date') as string || null,
+    updated_at: new Date().toISOString(),
+  };
+
+  const { data, error } = await supabase
+    .from('project_allocations')
+    .update(allocationData)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) {
+    throw new Error(`Failed to update allocation: ${error.message}`);
+  }
+
+  // Invalidate cache
+  revalidateTag('projects');
+  revalidateTag('developers');
+  revalidateTag('developers-with-allocations');
+  revalidateTag('allocations');
+  
+  return data;
+}
+
+export async function deleteProjectAllocation(id: string) {
+  await requireAuth();
+  const supabase = await createClient();
+  
+  const { error } = await supabase
+    .from('project_allocations')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    throw new Error(`Failed to delete allocation: ${error.message}`);
+  }
+
+  // Invalidate cache
+  revalidateTag('projects');
+  revalidateTag('developers');
+  revalidateTag('developers-with-allocations');
+  revalidateTag('allocations');
+}

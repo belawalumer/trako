@@ -13,9 +13,10 @@ interface ProjectColumnProps {
   developers: Developer[];
   onEdit?: (project: Project) => void;
   onDelete?: (projectId: string) => void;
+  onViewDetails?: (project: Project) => void;
 }
 
-export default function ProjectColumn({ id, title, color, projects, developers, onEdit, onDelete }: ProjectColumnProps) {
+export default function ProjectColumn({ id, title, color, projects, developers, onEdit, onDelete, onViewDetails }: ProjectColumnProps) {
   const { isOver, setNodeRef } = useDroppable({
     id,
   });
@@ -48,6 +49,7 @@ export default function ProjectColumn({ id, title, color, projects, developers, 
               developers={developers}
               onEdit={onEdit}
               onDelete={onDelete}
+              onViewDetails={onViewDetails}
             />
           ))
         )}

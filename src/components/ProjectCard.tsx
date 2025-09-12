@@ -10,7 +10,8 @@ import {
   CheckCircleIcon,
   ClockIcon,
   PencilIcon,
-  TrashIcon
+  TrashIcon,
+  EyeIcon
 } from '@heroicons/react/24/outline';
 import { deleteProject } from '@/lib/actions';
 import { useIsAuthenticated } from '@/lib/auth-utils';
@@ -22,9 +23,10 @@ interface ProjectCardProps {
   isOverlay?: boolean;
   onEdit?: (project: Project) => void;
   onDelete?: (projectId: string) => void;
+  onViewDetails?: (project: Project) => void;
 }
 
-export default function ProjectCard({ project, developers, isOverlay = false, onEdit, onDelete }: ProjectCardProps) {
+export default function ProjectCard({ project, developers, isOverlay = false, onEdit, onDelete, onViewDetails }: ProjectCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { isAuthenticated } = useIsAuthenticated();
@@ -62,6 +64,9 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
 
   const assignedDevelopers = project.project_allocations?.length || 0;
   const totalTasks = project.tasks?.length || 0;
+  const totalAllocatedHours = project.project_allocations?.reduce(
+    (sum, alloc) => sum + alloc.hours_allocated, 0
+  ) || 0;
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -87,6 +92,12 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
     onEdit?.(project);
   };
 
+  const handleViewDetails = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onViewDetails?.(project);
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -102,13 +113,13 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
           </h3>
         </div>
         <div className="flex items-center space-x-1 ml-2">
-          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(project.priority)}`}>
+          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium  ${getPriorityColor(project.priority)}`} style={{ fontSize: '10px' }}>
             {project.priority}
           </span>
-          {!isOverlay && isAuthenticated && (
+          {!isOverlay && (
             <div className="flex items-center space-x-1 ml-2">
               <button
-                onClick={handleEdit}
+                onClick={handleViewDetails}
                 onMouseDown={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -117,27 +128,46 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
                   e.preventDefault();
                   e.stopPropagation();
                 }}
-                className="p-1 text-gray-400 hover:text-indigo-600 transition-colors cursor-pointer"
-                title="Edit project"
+                className="p-1 text-gray-400 hover:text-blue-600 transition-colors cursor-pointer"
+                title="View project details"
               >
-                <PencilIcon className="h-4 w-4" />
+                <EyeIcon className="h-4 w-4" />
               </button>
-              <button
-                onClick={handleDelete}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onMouseUp={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                disabled={isDeleting}
-                className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 cursor-pointer"
-                title="Delete project"
-              >
-                <TrashIcon className="h-4 w-4" />
-              </button>
+              {isAuthenticated && (
+                <>
+                  <button
+                    onClick={handleEdit}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onMouseUp={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    className="p-1 text-gray-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                    title="Edit project"
+                  >
+                    <PencilIcon className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onMouseUp={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    disabled={isDeleting}
+                    className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 cursor-pointer"
+                    title="Delete project"
+                  >
+                    <TrashIcon className="h-4 w-4" />
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -164,11 +194,17 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
               <ClockIcon className="h-4 w-4 mr-1" />
               <span>{totalTasks} tasks</span>
             </div>
+            {totalAllocatedHours > 0 && (
+              <div className="flex items-center">
+                <ClockIcon className="h-4 w-4 mr-1" />
+                <span>{totalAllocatedHours}h allocated</span>
+              </div>
+            )}
           </div>
         </div>
 
         <div className="flex items-center justify-between">
-          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
+          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`} style={{ fontSize: '10px' }}>
             {project.status.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
           </span>
           

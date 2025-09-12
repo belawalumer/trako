@@ -7,6 +7,7 @@ import { Project, Developer } from '@/lib/supabase';
 import ProjectCard from './ProjectCard';
 import ProjectColumn from './ProjectColumn';
 import ProjectForm from './ProjectForm';
+import ProjectDetails from './ProjectDetails';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useIsAuthenticated } from '@/lib/auth-utils';
 import toast from 'react-hot-toast';
@@ -32,6 +33,7 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [viewingProject, setViewingProject] = useState<Project | null>(null);
   const [localProjects, setLocalProjects] = useState<Project[]>(projects);
   const { isAuthenticated } = useIsAuthenticated();
 
@@ -60,6 +62,19 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
     setLocalProjects(prev => 
       prev.map(p => p.id === updatedProject.id ? updatedProject : p)
     );
+  };
+
+  const handleViewProject = (project: Project) => {
+    setViewingProject(project);
+  };
+
+  const handleCloseProjectDetails = () => {
+    setViewingProject(null);
+  };
+
+  const handleProjectUpdate = () => {
+    // Refresh projects data when allocations are updated
+    window.location.reload();
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -178,6 +193,7 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
               developers={developers}
               onEdit={handleEditProject}
               onDelete={handleDeleteProject}
+              onViewDetails={handleViewProject}
             />
           ))}
         </div>
@@ -198,6 +214,16 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
             setEditingProject(null);
             handleUpdateProject(updatedProject);
           }}
+        />
+      )}
+
+      {/* Project Details Modal */}
+      {viewingProject && (
+        <ProjectDetails
+          project={viewingProject}
+          developers={developers}
+          onClose={handleCloseProjectDetails}
+          onUpdate={handleProjectUpdate}
         />
       )}
     </div>
