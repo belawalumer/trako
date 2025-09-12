@@ -100,9 +100,9 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
                     <h4 className="text-sm font-medium text-gray-900">
                       {developer.name}
                     </h4>
-                    <p className="text-sm text-gray-500">
+                    {/* <p className="text-sm text-gray-500">
                       {developer.email}
-                    </p>
+                    </p> */}
                   </div>
                 </div>
                 
@@ -135,7 +135,7 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
               </div>
 
               <div className="space-y-2">
-                {developer.skills && developer.skills.length > 0 && (
+                {/* {developer.skills && developer.skills.length > 0 && (
                   <div>
                     <p className="text-xs font-medium text-gray-700 mb-1">Skills:</p>
                     <div className="flex flex-wrap gap-1">
@@ -154,7 +154,7 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
                       )}
                     </div>
                   </div>
-                )}
+                )} */}
 
                 <div className="grid grid-cols-2 gap-4 text-xs">
                   <div>

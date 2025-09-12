@@ -115,10 +115,8 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
       console.log('Updating project status:', { projectId, newStatus });
       const result = await updateProjectStatus(projectId, formData);
       console.log('Project status updated successfully:', result);
-      toast.success('Project status updated successfully');
     } catch (error) {
       console.error('Error updating project:', error);
-      toast.error(`Failed to update project status: ${error instanceof Error ? error.message : 'Unknown error'}`);
       // Revert the optimistic update on error
       setLocalProjects(prev => 
         prev.map(p => 
