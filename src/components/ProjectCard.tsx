@@ -13,6 +13,7 @@ import {
   TrashIcon
 } from '@heroicons/react/24/outline';
 import { deleteProject } from '@/lib/actions';
+import { useIsAuthenticated } from '@/lib/auth-utils';
 
 interface ProjectCardProps {
   project: Project;
@@ -25,6 +26,7 @@ interface ProjectCardProps {
 export default function ProjectCard({ project, developers, isOverlay = false, onEdit, onDelete }: ProjectCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { isAuthenticated } = useIsAuthenticated();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: project.id,
   });
@@ -101,7 +103,7 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
           <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(project.priority)}`}>
             {project.priority}
           </span>
-          {!isOverlay && (
+          {!isOverlay && isAuthenticated && (
             <div className="flex items-center space-x-1 ml-2">
               <button
                 onClick={handleEdit}

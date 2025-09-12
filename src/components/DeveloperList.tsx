@@ -5,6 +5,7 @@ import { Developer } from '@/lib/supabase';
 import { UserIcon, ClockIcon, CheckCircleIcon, XCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DeveloperForm from './DeveloperForm';
 import { deleteDeveloper } from '@/lib/actions';
+import { useIsAuthenticated } from '@/lib/auth-utils';
 
 interface DeveloperListProps {
   developers: Developer[];
@@ -15,6 +16,7 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [localDevelopers, setLocalDevelopers] = useState<Developer[]>(developers);
+  const { isAuthenticated } = useIsAuthenticated();
   const getAvailabilityColor = (isAvailable: boolean) => {
     return isAvailable 
       ? 'bg-green-100 text-green-800' 
@@ -108,23 +110,25 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
                     {developer.is_available ? 'Available' : 'Busy'}
                   </span>
                   
-                  <div className="flex items-center space-x-1 ml-2">
-                    <button
-                      onClick={() => setEditingDeveloper(developer)}
-                      className="p-1 text-gray-400 hover:text-indigo-600 transition-colors cursor-pointer"
-                      title="Edit developer"
-                    >
-                      <PencilIcon className="h-4 w-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(developer.id)}
-                      disabled={deletingId === developer.id}
-                      className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 cursor-pointer"
-                      title="Delete developer"
-                    >
-                      <TrashIcon className="h-4 w-4" />
-                    </button>
-                  </div>
+                  {isAuthenticated && (
+                    <div className="flex items-center space-x-1 ml-2">
+                      <button
+                        onClick={() => setEditingDeveloper(developer)}
+                        className="p-1 text-gray-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                        title="Edit developer"
+                      >
+                        <PencilIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(developer.id)}
+                        disabled={deletingId === developer.id}
+                        className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 cursor-pointer"
+                        title="Delete developer"
+                      >
+                        <TrashIcon className="h-4 w-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
 

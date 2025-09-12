@@ -6,13 +6,15 @@ import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { createClient } from '@/lib/supabase-client';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/lib/auth-utils';
 import { 
   HomeIcon, 
   ClipboardDocumentListIcon, 
   UserGroupIcon, 
   Bars3Icon,
   XMarkIcon,
-  ArrowRightOnRectangleIcon
+  ArrowRightOnRectangleIcon,
+  LockClosedIcon
 } from '@heroicons/react/24/outline';
 
 interface LayoutProps {
@@ -30,6 +32,7 @@ function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
+  const { user, loading } = useAuth();
 
   const handleSignOut = useCallback(async () => {
     await supabase.auth.signOut();
@@ -94,13 +97,23 @@ function Layout({ children }: LayoutProps) {
             {navigationItems}
           </nav>
           <div className="border-t border-gray-200 p-4">
-            <button
-              onClick={handleSignOut}
-              className="flex w-full items-center px-2 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
-            >
-              <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-gray-400" />
-              Sign out
-            </button>
+            {user ? (
+              <button
+                onClick={handleSignOut}
+                className="flex w-full items-center px-2 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
+              >
+                <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-gray-400" />
+                Sign out
+              </button>
+            ) : (
+              <Link
+                href="/auth/login"
+                className="flex w-full items-center px-2 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 rounded-md transition-colors"
+              >
+                <LockClosedIcon className="mr-3 h-5 w-5 text-indigo-400" />
+                Admin Sign In
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -123,13 +136,23 @@ function Layout({ children }: LayoutProps) {
             {navigationItems}
           </nav>
           <div className="border-t border-gray-200 p-4">
-            <button
-              onClick={handleSignOut}
-              className="flex w-full items-center px-2 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
-            >
-              <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-gray-400" />
-              Sign out
-            </button>
+            {user ? (
+              <button
+                onClick={handleSignOut}
+                className="flex w-full items-center px-2 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-md transition-colors"
+              >
+                <ArrowRightOnRectangleIcon className="mr-3 h-5 w-5 text-gray-400" />
+                Sign out
+              </button>
+            ) : (
+              <Link
+                href="/auth/login"
+                className="flex w-full items-center px-2 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 hover:text-indigo-700 rounded-md transition-colors"
+              >
+                <LockClosedIcon className="mr-3 h-5 w-5 text-indigo-400" />
+                Admin Sign In
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -148,9 +171,25 @@ function Layout({ children }: LayoutProps) {
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1" />
             <div className="flex items-center gap-x-4 lg:gap-x-6">
-              <div className="text-sm font-medium text-gray-700">
-                Welcome back!
-              </div>
+              {loading ? (
+                <div className="h-4 w-24 bg-gray-200 animate-pulse rounded"></div>
+              ) : user ? (
+                <div className="text-sm font-medium text-gray-700">
+                  Welcome back, Admin!
+                </div>
+              ) : (
+                <div className="flex items-center gap-x-2">
+                  <div className="text-sm text-gray-500">
+                    Viewing as guest
+                  </div>
+                  <Link
+                    href="/auth/login"
+                    className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+                  >
+                    Sign in for admin access
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>

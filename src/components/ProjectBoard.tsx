@@ -8,6 +8,7 @@ import ProjectCard from './ProjectCard';
 import ProjectColumn from './ProjectColumn';
 import ProjectForm from './ProjectForm';
 import { PlusIcon } from '@heroicons/react/24/outline';
+import { useIsAuthenticated } from '@/lib/auth-utils';
 
 interface ProjectBoardProps {
   projects: Project[];
@@ -31,6 +32,7 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [localProjects, setLocalProjects] = useState<Project[]>(projects);
+  const { isAuthenticated } = useIsAuthenticated();
 
   const categories = ['Web', 'Mobile', 'UI/UX', 'Backend', 'DevOps', 'Other'];
 
@@ -60,12 +62,14 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
   };
 
   const handleDragStart = (event: DragStartEvent) => {
+    if (!isAuthenticated) return;
     const { active } = event;
     const project = localProjects.find(p => p.id === active.id);
     setActiveProject(project || null);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
+    if (!isAuthenticated) return;
     const { active, over } = event;
     setActiveProject(null);
 
@@ -159,6 +163,7 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        disabled={!isAuthenticated}
       >
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
           {statusColumns.map((column) => (

@@ -38,13 +38,6 @@ async function DevelopersContent() {
 }
 
 export default async function DevelopersPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/auth/login');
-  }
-
   return (
     <Layout>
       <Suspense fallback={<PageSkeleton />}>

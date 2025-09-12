@@ -1,15 +1,39 @@
 'use client';
 
 import { useState } from 'react';
-import { PlusIcon } from '@heroicons/react/24/outline';
+import { PlusIcon, LockClosedIcon } from '@heroicons/react/24/outline';
 import DeveloperForm from './DeveloperForm';
+import { useIsAuthenticated } from '@/lib/auth-utils';
+import Link from 'next/link';
 
 export default function DeveloperActions() {
   const [showDeveloperForm, setShowDeveloperForm] = useState(false);
+  const { isAuthenticated, loading } = useIsAuthenticated();
 
   const handleSuccess = () => {
     // Form will handle its own success and close
   };
+
+  if (loading) {
+    return <div className="h-10 w-32 bg-gray-200 animate-pulse rounded"></div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex items-center space-x-3">
+        <div className="flex items-center text-sm text-gray-500">
+          <LockClosedIcon className="h-4 w-4 mr-1" />
+          <span>Admin access required</span>
+        </div>
+        <Link
+          href="/auth/login"
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+        >
+          Sign In
+        </Link>
+      </div>
+    );
+  }
 
   return (
     <>

@@ -35,13 +35,6 @@ async function BoardContent() {
 }
 
 export default async function BoardPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect('/auth/login');
-  }
-
   return (
     <Layout>
       <Suspense fallback={<PageSkeleton />}>

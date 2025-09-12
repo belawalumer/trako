@@ -35,15 +35,8 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Protect routes that require authentication
-  if (request.nextUrl.pathname.startsWith('/dashboard') || 
-      request.nextUrl.pathname.startsWith('/board') || 
-      request.nextUrl.pathname.startsWith('/developers')) {
-    if (!user) {
-      // Redirect to login page if not authenticated
-      return NextResponse.redirect(new URL('/auth/login', request.url))
-    }
-  }
+  // All routes are now public - no authentication required for viewing
+  // Authentication is only required for actions (handled in components)
 
   // Redirect authenticated users away from auth pages
   if (request.nextUrl.pathname.startsWith('/auth') && user) {

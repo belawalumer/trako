@@ -3,9 +3,23 @@
 import { revalidateTag } from 'next/cache';
 import { createClient } from '@/lib/supabase-server';
 import { Project, Developer, ProjectAllocation } from '@/lib/supabase';
+import { redirect } from 'next/navigation';
+
+// Helper function to check authentication
+async function requireAuth() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    redirect('/auth/login');
+  }
+  
+  return user;
+}
 
 // Project Actions
 export async function createProject(formData: FormData) {
+  await requireAuth();
   const supabase = await createClient();
   
   const projectData = {
@@ -36,6 +50,7 @@ export async function createProject(formData: FormData) {
 }
 
 export async function updateProject(id: string, formData: FormData) {
+  await requireAuth();
   const supabase = await createClient();
   
   const projectData = {
@@ -68,6 +83,7 @@ export async function updateProject(id: string, formData: FormData) {
 }
 
 export async function deleteProject(id: string) {
+  await requireAuth();
   const supabase = await createClient();
   
   const { error } = await supabase
@@ -85,6 +101,7 @@ export async function deleteProject(id: string) {
 }
 
 export async function updateProjectStatus(id: string, formData: FormData) {
+  await requireAuth();
   const supabase = await createClient();
   
   const status = formData.get('status') as Project['status'];
@@ -117,6 +134,7 @@ export async function updateProjectStatus(id: string, formData: FormData) {
 
 // Developer Actions
 export async function createDeveloper(formData: FormData) {
+  await requireAuth();
   const supabase = await createClient();
   
   const name = formData.get('name') as string;
@@ -146,6 +164,7 @@ export async function createDeveloper(formData: FormData) {
 }
 
 export async function updateDeveloper(id: string, formData: FormData) {
+  await requireAuth();
   const supabase = await createClient();
   
   const name = formData.get('name') as string;
@@ -177,6 +196,7 @@ export async function updateDeveloper(id: string, formData: FormData) {
 }
 
 export async function deleteDeveloper(id: string) {
+  await requireAuth();
   const supabase = await createClient();
   
   const { error } = await supabase
@@ -195,6 +215,7 @@ export async function deleteDeveloper(id: string) {
 
 // Task Actions
 export async function updateTaskStatus(taskId: string, status: string) {
+  await requireAuth();
   const supabase = await createClient();
   
   const { error } = await supabase

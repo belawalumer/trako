@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Developer } from '@/lib/supabase';
+import { useIsAuthenticated } from '@/lib/auth-utils';
 
 interface TaskWithProject {
   id: string;
@@ -41,6 +42,7 @@ interface TaskCardProps {
 export default function TaskCard({ task, developers, isOverlay = false }: TaskCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [assignedDeveloperId, setAssignedDeveloperId] = useState(task.assigned_developer_id || '');
+  const { isAuthenticated } = useIsAuthenticated();
   const supabase = createClient();
 
   const {
@@ -148,19 +150,25 @@ export default function TaskCard({ task, developers, isOverlay = false }: TaskCa
 
           <div className="flex items-center space-x-1">
             <UserIcon className="h-3 w-3 text-gray-400" />
-            <select
-              value={assignedDeveloperId}
-              onChange={(e) => handleAssignDeveloper(e.target.value)}
-              className="text-xs border-none bg-transparent focus:ring-0 focus:outline-none"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <option value="">Unassigned</option>
-              {developers.map(dev => (
-                <option key={dev.id} value={dev.id}>
-                  {dev.name}
-                </option>
-              ))}
-            </select>
+            {isAuthenticated ? (
+              <select
+                value={assignedDeveloperId}
+                onChange={(e) => handleAssignDeveloper(e.target.value)}
+                className="text-xs border-none bg-transparent focus:ring-0 focus:outline-none"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <option value="">Unassigned</option>
+                {developers.map(dev => (
+                  <option key={dev.id} value={dev.id}>
+                    {dev.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="text-xs text-gray-500">
+                {task.assigned_developer?.name || 'Unassigned'}
+              </span>
+            )}
           </div>
         </div>
       </div>
