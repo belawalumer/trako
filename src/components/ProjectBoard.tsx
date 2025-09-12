@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCorners } from '@dnd-kit/core';
 import { updateProjectStatus } from '@/lib/actions';
 import { Project, Developer } from '@/lib/supabase';
+import { getProjectsClient } from '@/lib/data-client';
 import ProjectCard from './ProjectCard';
 import ProjectColumn from './ProjectColumn';
 import ProjectForm from './ProjectForm';
@@ -41,7 +42,9 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
 
   const filteredProjects = localProjects.filter(project => {
     const projectMatch = selectedProject === 'all' || project.id === selectedProject;
-    const categoryMatch = selectedCategory === 'all' || project.category === selectedCategory;
+    const categoryMatch = selectedCategory === 'all' || 
+      (project.categories && project.categories.includes(selectedCategory as any)) ||
+      project.category === selectedCategory; // Fallback for backward compatibility
     return projectMatch && categoryMatch;
   });
 
@@ -72,9 +75,25 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
     setViewingProject(null);
   };
 
-  const handleProjectUpdate = () => {
+  const handleProjectUpdate = async () => {
     // Refresh projects data when allocations are updated
-    window.location.reload();
+    try {
+      // Re-fetch projects data to get updated allocations
+      const updatedProjects = await getProjectsClient();
+      setLocalProjects(updatedProjects);
+      
+      // Update the viewing project if it's currently open
+      if (viewingProject) {
+        const updatedProject = updatedProjects.find((p: Project) => p.id === viewingProject.id);
+        if (updatedProject) {
+          setViewingProject(updatedProject);
+        }
+      }
+    } catch (error) {
+      console.error('Error refreshing project data:', error);
+      // Fallback to page reload if data fetch fails
+      window.location.reload();
+    }
   };
 
   const handleDragStart = (event: DragStartEvent) => {
@@ -178,7 +197,6 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
         collisionDetection={closestCorners}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        disabled={!isAuthenticated}
       >
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-4">
           {statusColumns.map((column) => (
@@ -210,7 +228,9 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
           onClose={() => setEditingProject(null)}
           onSuccess={(updatedProject) => {
             setEditingProject(null);
-            handleUpdateProject(updatedProject);
+            if (updatedProject) {
+              handleUpdateProject(updatedProject);
+            }
           }}
         />
       )}

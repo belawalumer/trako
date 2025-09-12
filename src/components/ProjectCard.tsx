@@ -29,7 +29,7 @@ interface ProjectCardProps {
 export default function ProjectCard({ project, developers, isOverlay = false, onEdit, onDelete, onViewDetails }: ProjectCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const { isAuthenticated } = useIsAuthenticated();
+  const { isAuthenticated, loading } = useIsAuthenticated();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: project.id,
   });
@@ -133,7 +133,9 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
               >
                 <EyeIcon className="h-4 w-4" />
               </button>
-              {isAuthenticated && (
+              {loading ? (
+                <div className="h-4 w-4 bg-gray-200 animate-pulse rounded"></div>
+              ) : isAuthenticated ? (
                 <>
                   <button
                     onClick={handleEdit}
@@ -167,7 +169,7 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
                     <TrashIcon className="h-4 w-4" />
                   </button>
                 </>
-              )}
+              ) : null}
             </div>
           )}
         </div>
@@ -182,6 +184,22 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
           <p className="text-xs text-gray-600 mb-3 line-clamp-2">
             {project.description}
           </p>
+        )}
+
+        {/* Display categories */}
+        {(project.categories && project.categories.length > 0) && (
+          <div className="mb-3">
+            <div className="flex flex-wrap gap-1">
+              {project.categories.map((category, index) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                >
+                  {category}
+                </span>
+              ))}
+            </div>
+          </div>
         )}
 
         <div className="flex items-center justify-between text-xs text-gray-500 mb-3">

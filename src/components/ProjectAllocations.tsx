@@ -9,7 +9,8 @@ import {
   PencilIcon, 
   TrashIcon, 
   PlusIcon,
-  XMarkIcon
+  XMarkIcon,
+  UserMinusIcon
 } from '@heroicons/react/24/outline';
 import { useIsAuthenticated } from '@/lib/auth-utils';
 import ProjectAllocationForm from './ProjectAllocationForm';
@@ -27,17 +28,33 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { isAuthenticated } = useIsAuthenticated();
 
-  const handleDelete = async (allocationId: string) => {
-    if (!confirm('Are you sure you want to remove this developer from the project?')) return;
+  const handleUnassign = async (allocationId: string) => {
+    if (!confirm('Are you sure you want to unassign this developer from the project?')) return;
     
     setDeletingId(allocationId);
     try {
       await deleteProjectAllocation(allocationId);
-      toast.success('Developer removed from project');
+      toast.success('Developer unassigned from project');
+      onUpdate();
+    } catch (error) {
+      console.error('Error unassigning developer:', error);
+      toast.error('Failed to unassign developer from project');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleDelete = async (allocationId: string) => {
+    if (!confirm('Are you sure you want to permanently remove this allocation?')) return;
+    
+    setDeletingId(allocationId);
+    try {
+      await deleteProjectAllocation(allocationId);
+      toast.success('Allocation removed');
       onUpdate();
     } catch (error) {
       console.error('Error deleting allocation:', error);
-      toast.error('Failed to remove developer from project');
+      toast.error('Failed to remove allocation');
     } finally {
       setDeletingId(null);
     }
@@ -133,10 +150,18 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
                           <PencilIcon className="h-4 w-4" />
                         </button>
                         <button
+                          onClick={() => handleUnassign(allocation.id)}
+                          disabled={deletingId === allocation.id}
+                          className="p-1 text-gray-400 hover:text-orange-600 transition-colors disabled:opacity-50"
+                          title="Unassign developer"
+                        >
+                          <UserMinusIcon className="h-4 w-4" />
+                        </button>
+                        <button
                           onClick={() => handleDelete(allocation.id)}
                           disabled={deletingId === allocation.id}
                           className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                          title="Remove developer"
+                          title="Remove allocation completely"
                         >
                           <TrashIcon className="h-4 w-4" />
                         </button>

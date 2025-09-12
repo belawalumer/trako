@@ -22,12 +22,16 @@ export async function createProject(formData: FormData) {
   await requireAuth();
   const supabase = await createClient();
   
+  const categoriesJson = formData.get('categories') as string;
+  const categories = categoriesJson ? JSON.parse(categoriesJson) : ['Web'];
+  
   const projectData = {
     name: formData.get('name') as string,
     description: formData.get('description') as string,
     status: formData.get('status') as Project['status'],
     priority: formData.get('priority') as Project['priority'],
-    category: formData.get('category') as Project['category'],
+    category: categories[0] || 'Web', // Keep first category for backward compatibility
+    categories: categories,
     start_date: formData.get('start_date') as string || null,
     end_date: formData.get('end_date') as string || null,
   };
@@ -53,12 +57,16 @@ export async function updateProject(id: string, formData: FormData) {
   await requireAuth();
   const supabase = await createClient();
   
+  const categoriesJson = formData.get('categories') as string;
+  const categories = categoriesJson ? JSON.parse(categoriesJson) : ['Web'];
+  
   const projectData = {
     name: formData.get('name') as string,
     description: formData.get('description') as string,
     status: formData.get('status') as Project['status'],
     priority: formData.get('priority') as Project['priority'],
-    category: formData.get('category') as Project['category'],
+    category: categories[0] || 'Web', // Keep first category for backward compatibility
+    categories: categories,
     start_date: formData.get('start_date') as string || null,
     end_date: formData.get('end_date') as string || null,
     updated_at: new Date().toISOString(),

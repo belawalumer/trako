@@ -15,12 +15,26 @@ interface ProjectFormProps {
 export default function ProjectForm({ project, onClose, onSuccess }: ProjectFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    project?.categories?.length ? project.categories : (project?.category ? [project.category] : ['Web'])
+  );
+
+  const handleCategoryChange = (category: string, checked: boolean) => {
+    if (checked) {
+      setSelectedCategories(prev => [...prev, category]);
+    } else {
+      setSelectedCategories(prev => prev.filter(c => c !== category));
+    }
+  };
 
   const handleSubmit = async (formData: FormData) => {
     setIsSubmitting(true);
     setError(null);
 
     try {
+      // Add selected categories to form data
+      formData.append('categories', JSON.stringify(selectedCategories));
+      
       let result;
       if (project) {
         result = await updateProject(project.id, formData);
@@ -149,23 +163,25 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
             </div>
 
             <div>
-              <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-                Category *
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Categories *
               </label>
-              <select
-                id="category"
-                name="category"
-                required
-                defaultValue={project?.category || 'Web'}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-800"
-              >
-                <option value="Web">Web</option>
-                <option value="Mobile">Mobile</option>
-                <option value="UI/UX">UI/UX</option>
-                <option value="Backend">Backend</option>
-                <option value="DevOps">DevOps</option>
-                <option value="Other">Other</option>
-              </select>
+              <div className="grid grid-cols-2 gap-2">
+                {['Web', 'Mobile', 'UI/UX', 'Backend', 'DevOps', 'Other'].map((category) => (
+                  <label key={category} className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedCategories.includes(category)}
+                      onChange={(e) => handleCategoryChange(category, e.target.checked)}
+                      className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    />
+                    <span className="text-sm text-gray-700">{category}</span>
+                  </label>
+                ))}
+              </div>
+              {selectedCategories.length === 0 && (
+                <p className="text-red-500 text-xs mt-1">Please select at least one category</p>
+              )}
             </div>
           </div>
 

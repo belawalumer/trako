@@ -219,7 +219,9 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
           onClose={() => setEditingDeveloper(null)}
           onSuccess={(updatedDeveloper) => {
             setEditingDeveloper(null);
-            handleUpdate(updatedDeveloper);
+            if (updatedDeveloper) {
+              handleUpdate(updatedDeveloper);
+            }
           }}
         />
       )}

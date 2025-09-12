@@ -6,6 +6,7 @@ import {
   XMarkIcon, 
   CalendarIcon, 
   UserGroupIcon, 
+  UserIcon,
   ClockIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon
@@ -108,9 +109,23 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
                   {project.priority}
                 </span>
                 
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-                  {project.category}
-                </span>
+                {/* Display categories */}
+                <div className="flex flex-wrap gap-1">
+                  {(project.categories && project.categories.length > 0) ? (
+                    project.categories.map((category, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"
+                      >
+                        {category}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                      {project.category}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -179,6 +194,44 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
               </div>
             </div>
           )}
+
+          {/* Assigned Developers List */}
+          <div className="bg-gray-50 rounded-lg p-4">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Assigned Developers</h4>
+            {project.project_allocations && project.project_allocations.length > 0 ? (
+              <div className="space-y-2">
+                {project.project_allocations.map((allocation) => {
+                  const developer = developers.find(dev => dev.id === allocation.developer_id);
+                  if (!developer) return null;
+                  
+                  return (
+                    <div key={allocation.id} className="flex items-center justify-between bg-white rounded-md p-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
+                          <UserIcon className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-900">{developer.name}</p>
+                          <p className="text-xs text-gray-500">{allocation.hours_allocated}h allocated</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium text-gray-900">
+                          {allocation.allocation_percentage.toFixed(1)}%
+                        </p>
+                        <p className="text-xs text-gray-500">allocation</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="text-center py-4 text-gray-500">
+                <UserIcon className="h-8 w-8 mx-auto mb-2 text-gray-300" />
+                <p className="text-sm">No developers assigned to this project</p>
+              </div>
+            )}
+          </div>
 
           {/* Developer Allocations */}
           <ProjectAllocations

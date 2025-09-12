@@ -12,7 +12,8 @@ export interface Project {
   description?: string
   status: 'active' | 'started' | 'completed' | 'stopped' | 'waiting_for_client_approval' | 'gathering_requirements' | 'client_not_responding' | 'new_projects_in_pipeline'
   priority: 'low' | 'medium' | 'high' | 'urgent'
-  category: 'Web' | 'Mobile' | 'UI/UX' | 'Backend' | 'DevOps' | 'Other'
+  category: 'Web' | 'Mobile' | 'UI/UX' | 'Backend' | 'DevOps' | 'Other' // Keep for backward compatibility
+  categories: ('Web' | 'Mobile' | 'UI/UX' | 'Backend' | 'DevOps' | 'Other')[] // New array field
   start_date?: string
   end_date?: string
   created_at: string
