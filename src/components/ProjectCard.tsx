@@ -14,6 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { deleteProject } from '@/lib/actions';
 import { useIsAuthenticated } from '@/lib/auth-utils';
+import toast from 'react-hot-toast';
 
 interface ProjectCardProps {
   project: Project;
@@ -71,9 +72,10 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
     try {
       await deleteProject(project.id);
       onDelete?.(project.id);
+      toast.success('Project deleted successfully');
     } catch (error) {
       console.error('Error deleting project:', error);
-      alert('Failed to delete project');
+      toast.error('Failed to delete project');
     } finally {
       setIsDeleting(false);
     }

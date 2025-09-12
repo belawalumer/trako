@@ -6,6 +6,7 @@ import { UserIcon, ClockIcon, CheckCircleIcon, XCircleIcon, PencilIcon, TrashIco
 import DeveloperForm from './DeveloperForm';
 import { deleteDeveloper } from '@/lib/actions';
 import { useIsAuthenticated } from '@/lib/auth-utils';
+import toast from 'react-hot-toast';
 
 interface DeveloperListProps {
   developers: Developer[];
@@ -45,9 +46,10 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
     try {
       await deleteDeveloper(id);
       setLocalDevelopers(prev => prev.filter(dev => dev.id !== id));
+      toast.success('Developer deleted successfully');
     } catch (error) {
       console.error('Error deleting developer:', error);
-      alert('Failed to delete developer');
+      toast.error('Failed to delete developer');
     } finally {
       setDeletingId(null);
       setIsLoading(false);

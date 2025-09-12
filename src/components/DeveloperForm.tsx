@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Developer } from '@/lib/supabase';
 import { createDeveloper, updateDeveloper } from '@/lib/actions';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 interface DeveloperFormProps {
   developer?: Developer;
@@ -23,13 +24,17 @@ export default function DeveloperForm({ developer, onClose, onSuccess }: Develop
       let result;
       if (developer) {
         result = await updateDeveloper(developer.id, formData);
+        toast.success('Developer updated successfully');
       } else {
         result = await createDeveloper(formData);
+        toast.success('Developer created successfully');
       }
       onSuccess(result);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

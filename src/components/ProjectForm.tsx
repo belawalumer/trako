@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Project } from '@/lib/supabase';
 import { createProject, updateProject } from '@/lib/actions';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import toast from 'react-hot-toast';
 
 interface ProjectFormProps {
   project?: Project;
@@ -23,13 +24,17 @@ export default function ProjectForm({ project, onClose, onSuccess }: ProjectForm
       let result;
       if (project) {
         result = await updateProject(project.id, formData);
+        toast.success('Project updated successfully');
       } else {
         result = await createProject(formData);
+        toast.success('Project created successfully');
       }
       onSuccess(result);
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      const errorMessage = err instanceof Error ? err.message : 'An error occurred';
+      setError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }

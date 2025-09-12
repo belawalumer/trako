@@ -5,6 +5,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Developer } from '@/lib/supabase';
 import { useIsAuthenticated } from '@/lib/auth-utils';
+import toast from 'react-hot-toast';
 
 interface TaskWithProject {
   id: string;
@@ -93,6 +94,9 @@ export default function TaskCard({ task, developers, isOverlay = false }: TaskCa
 
     if (!error) {
       setAssignedDeveloperId(developerId);
+      toast.success('Developer assigned successfully');
+    } else {
+      toast.error('Failed to assign developer');
     }
   };
 
