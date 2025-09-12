@@ -9,9 +9,7 @@ import ProjectCard from './ProjectCard';
 import ProjectColumn from './ProjectColumn';
 import ProjectForm from './ProjectForm';
 import ProjectDetails from './ProjectDetails';
-import { PlusIcon } from '@heroicons/react/24/outline';
 import { useIsAuthenticated } from '@/lib/auth-utils';
-import toast from 'react-hot-toast';
 
 interface ProjectBoardProps {
   projects: Project[];
@@ -43,7 +41,7 @@ export default function ProjectBoard({ projects, developers }: ProjectBoardProps
   const filteredProjects = localProjects.filter(project => {
     const projectMatch = selectedProject === 'all' || project.id === selectedProject;
     const categoryMatch = selectedCategory === 'all' || 
-      (project.categories && project.categories.includes(selectedCategory as any)) ||
+      (project.categories && project.categories.includes(selectedCategory as Project['categories'][0])) ||
       project.category === selectedCategory; // Fallback for backward compatibility
     return projectMatch && categoryMatch;
   });

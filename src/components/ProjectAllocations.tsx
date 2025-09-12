@@ -9,7 +9,6 @@ import {
   PencilIcon, 
   TrashIcon, 
   PlusIcon,
-  XMarkIcon,
   UserMinusIcon
 } from '@heroicons/react/24/outline';
 import { useIsAuthenticated } from '@/lib/auth-utils';
@@ -98,7 +97,7 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
           <UserIcon className="h-12 w-12 mx-auto mb-4 text-gray-300" />
           <p>No developers assigned to this project</p>
           {isAuthenticated && (
-            <p className="text-sm mt-2">Click "Assign Developer" to get started</p>
+            <p className="text-sm mt-2">Click &quot;Assign Developer&quot; to get started</p>
           )}
         </div>
       ) : (

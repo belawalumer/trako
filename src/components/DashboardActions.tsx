@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PlusIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { Project, Developer } from '@/lib/supabase';
 import ProjectForm from './ProjectForm';
 import DeveloperForm from './DeveloperForm';
 import { useIsAuthenticated } from '@/lib/auth-utils';
@@ -12,7 +13,11 @@ export default function DashboardActions() {
   const [showDeveloperForm, setShowDeveloperForm] = useState(false);
   const { isAuthenticated, loading } = useIsAuthenticated();
 
-  const handleSuccess = (updatedProject?: any) => {
+  const handleProjectSuccess = (updatedProject?: Project) => {
+    // Forms will handle their own success and close
+  };
+
+  const handleDeveloperSuccess = (updatedDeveloper?: Developer) => {
     // Forms will handle their own success and close
   };
 
@@ -60,14 +65,14 @@ export default function DashboardActions() {
       {showProjectForm && (
         <ProjectForm
           onClose={() => setShowProjectForm(false)}
-          onSuccess={handleSuccess}
+          onSuccess={handleProjectSuccess}
         />
       )}
 
       {showDeveloperForm && (
         <DeveloperForm
           onClose={() => setShowDeveloperForm(false)}
-          onSuccess={handleSuccess}
+          onSuccess={handleDeveloperSuccess}
         />
       )}
     </>

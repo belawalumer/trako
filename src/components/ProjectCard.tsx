@@ -6,8 +6,6 @@ import { Project, Developer } from '@/lib/supabase';
 import { 
   CalendarIcon, 
   UserGroupIcon, 
-  ExclamationTriangleIcon,
-  CheckCircleIcon,
   ClockIcon,
   PencilIcon,
   TrashIcon,

@@ -2,9 +2,10 @@
 
 import { createClient } from '@/lib/supabase-client';
 import { useEffect, useState } from 'react';
+import { User, AuthChangeEvent, Session } from '@supabase/supabase-js';
 
 export function useAuth() {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
@@ -18,7 +19,7 @@ export function useAuth() {
     getUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (event: AuthChangeEvent, session: Session | null) => {
         setUser(session?.user ?? null);
         setLoading(false);
       }

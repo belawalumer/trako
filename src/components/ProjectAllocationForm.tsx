@@ -165,7 +165,7 @@ export default function ProjectAllocationForm({
               required
             />
             <p className="text-xs text-gray-500 mt-1">
-              Developer's weekly hours: {weeklyHours}h (max: {weeklyHours}h)
+              Developer&apos;s weekly hours: {weeklyHours}h (max: {weeklyHours}h)
             </p>
           </div>
 

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Developer } from '@/lib/supabase';
-import { UserIcon, ClockIcon, CheckCircleIcon, XCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
+import { Developer, ProjectAllocation } from '@/lib/supabase';
+import { UserIcon, CheckCircleIcon, XCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DeveloperForm from './DeveloperForm';
 import { deleteDeveloper } from '@/lib/actions';
 import { useIsAuthenticated } from '@/lib/auth-utils';
@@ -30,11 +30,11 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
       : <XCircleIcon className="h-4 w-4 text-red-500" />;
   };
 
-  const calculateTotalAllocation = (allocations: any[] | undefined) => {
+  const calculateTotalAllocation = (allocations: ProjectAllocation[] | undefined) => {
     return allocations?.reduce((sum, alloc) => sum + alloc.allocation_percentage, 0) || 0;
   };
 
-  const calculateTotalHours = (allocations: any[] | undefined) => {
+  const calculateTotalHours = (allocations: ProjectAllocation[] | undefined) => {
     return allocations?.reduce((sum, alloc) => sum + alloc.hours_allocated, 0) || 0;
   };
 

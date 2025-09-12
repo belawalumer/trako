@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PlusIcon, LockClosedIcon } from '@heroicons/react/24/outline';
+import { Project } from '@/lib/supabase';
 import ProjectForm from './ProjectForm';
 import { useIsAuthenticated } from '@/lib/auth-utils';
 import Link from 'next/link';
@@ -10,7 +11,7 @@ export default function BoardActions() {
   const [showProjectForm, setShowProjectForm] = useState(false);
   const { isAuthenticated, loading } = useIsAuthenticated();
 
-  const handleSuccess = (updatedProject?: any) => {
+  const handleSuccess = (updatedProject?: Project) => {
     // Form will handle its own success and close
   };
 

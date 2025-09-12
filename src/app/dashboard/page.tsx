@@ -1,5 +1,5 @@
-import { createClient } from '@/lib/supabase-server';
-import { redirect } from 'next/navigation';
+// import { createClient } from '@/lib/supabase-server';
+// import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import Layout from '@/components/Layout';
 import DashboardStats from '@/components/DashboardStats';

@@ -30,8 +30,7 @@ import {
   UserIcon, 
   ExclamationTriangleIcon,
   CheckCircleIcon,
-  ClockIcon,
-  PencilIcon
+  ClockIcon
 } from '@heroicons/react/24/outline';
 
 interface TaskCardProps {

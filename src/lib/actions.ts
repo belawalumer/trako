@@ -2,7 +2,7 @@
 
 import { revalidateTag } from 'next/cache';
 import { createClient } from '@/lib/supabase-server';
-import { Project, Developer, ProjectAllocation } from '@/lib/supabase';
+import { Project } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
 
 // Helper function to check authentication
@@ -229,7 +229,7 @@ export async function updateTaskStatus(taskId: string, status: string) {
   const { error } = await supabase
     .from('tasks')
     .update({ 
-      status: status as any,
+      status: status as Project['status'],
       updated_at: new Date().toISOString()
     })
     .eq('id', taskId);
