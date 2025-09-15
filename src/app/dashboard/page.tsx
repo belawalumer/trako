@@ -7,13 +7,12 @@ import ProjectList from '@/components/ProjectList';
 import RecentActivity from '@/components/RecentActivity';
 import PageSkeleton from '@/components/PageSkeleton';
 import DashboardActions from '@/components/DashboardActions';
-import { getProjects, getDevelopers, getRecentTasks } from '@/lib/data';
+import { getProjects, getRecentTasks } from '@/lib/data';
 
 async function DashboardContent() {
   // Use optimized data fetching with caching
-  const [projects, developers, recentTasks] = await Promise.all([
+  const [projects, recentTasks] = await Promise.all([
     getProjects(),
-    getDevelopers(),
     getRecentTasks()
   ]);
 
@@ -31,13 +30,14 @@ async function DashboardContent() {
 
       <DashboardStats 
         projects={projects} 
-        developers={developers} 
+        developers={[]} 
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <ProjectList projects={projects} />
         {/* <RecentActivity tasks={recentTasks} /> */}
       </div>
+     
     </div>
   );
 }

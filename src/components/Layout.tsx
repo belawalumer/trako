@@ -11,6 +11,7 @@ import {
   HomeIcon, 
   ClipboardDocumentListIcon, 
   UserGroupIcon, 
+  CalendarIcon,
   Bars3Icon,
   XMarkIcon,
   ArrowRightOnRectangleIcon,
@@ -25,6 +26,7 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Board', href: '/board', icon: ClipboardDocumentListIcon },
   { name: 'Developers', href: '/developers', icon: UserGroupIcon },
+  { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
 ];
 
 function Layout({ children }: LayoutProps) {
