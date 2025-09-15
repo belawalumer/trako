@@ -131,7 +131,7 @@ export default function ProjectCalendar({ projects }: ProjectCalendarProps) {
     };
 
     return (
-      <div className="flex items-center justify-between mb-4 p-4 bg-white rounded-lg shadow-sm border">
+      <div className="flex items-center justify-between mb-4 p-4 bg-white rounded-lg shadow-sm">
         <div className="flex items-center space-x-2">
           <button
             onClick={goToBack}
@@ -208,7 +208,7 @@ export default function ProjectCalendar({ projects }: ProjectCalendarProps) {
       </div>
 
       {/* Legend */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border">
+      <div className="bg-white p-4 rounded-lg shadow-sm">
         <h3 className="text-sm font-medium text-gray-900 mb-3">Status Legend</h3>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
           {[
@@ -228,7 +228,7 @@ export default function ProjectCalendar({ projects }: ProjectCalendarProps) {
       </div>
 
       {/* Calendar */}
-      <div className="bg-white rounded-lg shadow-sm border">
+      <div className="bg-white rounded-lg shadow-sm">
         <div className="p-4">
           <Calendar
             localizer={localizer}
@@ -254,7 +254,7 @@ export default function ProjectCalendar({ projects }: ProjectCalendarProps) {
       </div>
 
       {/* Project Summary */}
-      <div className="bg-white p-4 rounded-lg shadow-sm border">
+      <div className="bg-white p-4 rounded-lg shadow-sm">
         <h3 className="text-sm font-medium text-gray-900 mb-3">Project Summary</h3>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div className="text-center">
