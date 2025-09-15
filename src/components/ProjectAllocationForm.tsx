@@ -69,7 +69,7 @@ export default function ProjectAllocationForm({
     
     // Check if developer has available hours
     const devCurrentAllocations = getDeveloperCurrentAllocations(dev.id);
-    const devAvailableHours = dev.working_hours - devCurrentAllocations;
+    const devAvailableHours = (dev.working_hours || 40) - devCurrentAllocations;
     return devAvailableHours > 0;
   });
 
@@ -186,7 +186,7 @@ export default function ProjectAllocationForm({
             </select>
             {availableDevelopers.length === 0 && (
               <p className="text-sm text-gray-500 mt-1">
-                {project.project_allocations?.length > 0 
+                {(project.project_allocations?.length || 0) > 0 
                   ? "All developers are already assigned to this project or have no available hours"
                   : "No developers have available hours for allocation"
                 }
