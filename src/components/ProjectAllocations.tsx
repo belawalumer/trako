@@ -84,7 +84,7 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
         {isAuthenticated && (
           <button
             onClick={handleAdd}
-            className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
           >
             <PlusIcon className="h-4 w-4 mr-2" />
             Assign Developer
@@ -143,7 +143,7 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
                       <div className="flex items-center space-x-1">
                         <button
                           onClick={() => handleEdit(allocation)}
-                          className="p-1 text-gray-400 hover:text-indigo-600 transition-colors"
+                          className="p-1 text-gray-400 hover:text-indigo-600 transition-colors cursor-pointer"
                           title="Edit allocation"
                         >
                           <PencilIcon className="h-4 w-4" />
@@ -151,7 +151,7 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
                         <button
                           onClick={() => handleUnassign(allocation.id)}
                           disabled={deletingId === allocation.id}
-                          className="p-1 text-gray-400 hover:text-orange-600 transition-colors disabled:opacity-50"
+                          className="p-1 text-gray-400 hover:text-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                           title="Unassign developer"
                         >
                           <UserMinusIcon className="h-4 w-4" />
@@ -159,7 +159,7 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
                         <button
                           onClick={() => handleDelete(allocation.id)}
                           disabled={deletingId === allocation.id}
-                          className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                          className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                           title="Remove allocation completely"
                         >
                           <TrashIcon className="h-4 w-4" />

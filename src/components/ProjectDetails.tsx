@@ -1,7 +1,8 @@
 'use client';
 
-// import { useState } from 'react';
-import { Project, Developer } from '@/lib/supabase';
+import { useState } from 'react';
+import { Project, Developer, ProjectAllocation } from '@/lib/supabase';
+import { deleteProjectAllocation } from '@/lib/actions';
 import { 
   XMarkIcon, 
   CalendarIcon, 
@@ -9,9 +10,15 @@ import {
   UserIcon,
   ClockIcon,
   ExclamationTriangleIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  PencilIcon,
+  TrashIcon,
+  UserMinusIcon
 } from '@heroicons/react/24/outline';
-import ProjectAllocations from './ProjectAllocations';
+import { useIsAuthenticated } from '@/lib/auth-utils';
+import ProjectAllocationForm from './ProjectAllocationForm';
+import ModalTransition from './ModalTransition';
+import toast from 'react-hot-toast';
 
 interface ProjectDetailsProps {
   project: Project;
@@ -21,6 +28,59 @@ interface ProjectDetailsProps {
 }
 
 export default function ProjectDetails({ project, developers, onClose, onUpdate }: ProjectDetailsProps) {
+  const [showAllocationForm, setShowAllocationForm] = useState(false);
+  const [editingAllocation, setEditingAllocation] = useState<ProjectAllocation | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const { isAuthenticated } = useIsAuthenticated();
+
+  const handleUnassign = async (allocationId: string) => {
+    if (!confirm('Are you sure you want to unassign this developer from the project?')) return;
+    
+    setDeletingId(allocationId);
+    try {
+      await deleteProjectAllocation(allocationId);
+      toast.success('Developer unassigned from project');
+      onUpdate();
+    } catch (error) {
+      console.error('Error unassigning developer:', error);
+      toast.error('Failed to unassign developer from project');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleDelete = async (allocationId: string) => {
+    if (!confirm('Are you sure you want to permanently remove this allocation?')) return;
+    
+    setDeletingId(allocationId);
+    try {
+      await deleteProjectAllocation(allocationId);
+      toast.success('Allocation removed');
+      onUpdate();
+    } catch (error) {
+      console.error('Error deleting allocation:', error);
+      toast.error('Failed to remove allocation');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleEdit = (allocation: ProjectAllocation) => {
+    setEditingAllocation(allocation);
+    setShowAllocationForm(true);
+  };
+
+  const handleAdd = () => {
+    setEditingAllocation(null);
+    setShowAllocationForm(true);
+  };
+
+  const handleSuccess = () => {
+    setShowAllocationForm(false);
+    setEditingAllocation(null);
+    onUpdate();
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'urgent': return 'text-red-600 bg-red-100';
@@ -74,13 +134,13 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
     : 0;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+    <ModalTransition isOpen={true} onClose={onClose}>
       <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">Project Details</h2>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 cursor-pointer"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
@@ -197,7 +257,17 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
 
           {/* Assigned Developers List */}
           <div className="bg-gray-50 rounded-lg p-4">
-            <h4 className="text-sm font-medium text-gray-900 mb-3">Assigned Developers</h4>
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-medium text-gray-900">Assigned Developers</h4>
+              {isAuthenticated && (
+                <button
+                  onClick={handleAdd}
+                  className="inline-flex items-center px-2 py-1 border border-transparent text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 cursor-pointer"
+                >
+                  Add Developer
+                </button>
+              )}
+            </div>
             {project.project_allocations && project.project_allocations.length > 0 ? (
               <div className="space-y-2">
                 {project.project_allocations.map((allocation) => {
@@ -205,7 +275,7 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
                   if (!developer) return null;
                   
                   return (
-                    <div key={allocation.id} className="flex items-center justify-between bg-white rounded-md p-3">
+                    <div key={allocation.id} className="flex items-center justify-between bg-white rounded-md p-3 hover:shadow-sm transition-shadow">
                       <div className="flex items-center space-x-3">
                         <div className="h-8 w-8 rounded-full bg-indigo-100 flex items-center justify-center">
                           <UserIcon className="h-4 w-4 text-indigo-600" />
@@ -215,11 +285,40 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
                           <p className="text-xs text-gray-500">{allocation.hours_allocated}h allocated</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-sm font-medium text-gray-900">
-                          {allocation.allocation_percentage.toFixed(1)}%
-                        </p>
-                        <p className="text-xs text-gray-500">allocation</p>
+                      <div className="flex items-center space-x-2">
+                        <div className="text-right">
+                          <p className="text-sm font-medium text-gray-900">
+                            {allocation.allocation_percentage.toFixed(1)}%
+                          </p>
+                          <p className="text-xs text-gray-500">allocation</p>
+                        </div>
+                        {isAuthenticated && (
+                          <div className="flex items-center space-x-1">
+                            <button
+                              onClick={() => handleEdit(allocation)}
+                              className="p-1 text-gray-400 hover:text-indigo-600 transition-colors cursor-pointer"
+                              title="Edit allocation"
+                            >
+                              <PencilIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleUnassign(allocation.id)}
+                              disabled={deletingId === allocation.id}
+                              className="p-1 text-gray-400 hover:text-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                              title="Unassign developer"
+                            >
+                              <UserMinusIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(allocation.id)}
+                              disabled={deletingId === allocation.id}
+                              className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                              title="Remove allocation completely"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -229,18 +328,26 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
               <div className="text-center py-4 text-gray-500">
                 <UserIcon className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                 <p className="text-sm">No developers assigned to this project</p>
+                {isAuthenticated && (
+                  <p className="text-xs mt-2">Click "Add Developer" to get started</p>
+                )}
               </div>
             )}
           </div>
 
-          {/* Developer Allocations */}
-          <ProjectAllocations
-            project={project}
-            developers={developers}
-            onUpdate={onUpdate}
-          />
         </div>
       </div>
-    </div>
+
+      {/* Project Allocation Form Modal */}
+      {showAllocationForm && (
+        <ProjectAllocationForm
+          project={project}
+          developers={developers}
+          allocation={editingAllocation || undefined}
+          onClose={() => setShowAllocationForm(false)}
+          onSuccess={handleSuccess}
+        />
+      )}
+    </ModalTransition>
   );
 }

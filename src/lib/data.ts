@@ -15,9 +15,12 @@ export async function getProjects() {
           *,
           project_allocations (
             id,
+            developer_id,
             hours_allocated,
             hours_worked,
             allocation_percentage,
+            start_date,
+            end_date,
             developer:developers (name, email)
           )
         `)

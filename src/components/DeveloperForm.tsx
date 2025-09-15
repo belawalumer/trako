@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Developer } from '@/lib/supabase';
 import { createDeveloper, updateDeveloper } from '@/lib/actions';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import ModalTransition from './ModalTransition';
 import toast from 'react-hot-toast';
 
 interface DeveloperFormProps {
@@ -41,7 +42,7 @@ export default function DeveloperForm({ developer, onClose, onSuccess }: Develop
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center p-4 z-50">
+    <ModalTransition isOpen={true} onClose={onClose}>
       <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h3 className="text-lg font-medium text-gray-900">
@@ -49,7 +50,7 @@ export default function DeveloperForm({ developer, onClose, onSuccess }: Develop
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-gray-600 cursor-pointer"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
@@ -99,20 +100,20 @@ export default function DeveloperForm({ developer, onClose, onSuccess }: Develop
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 disabled:opacity-50"
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? 'Saving...' : (developer ? 'Update' : 'Create')}
             </button>
           </div>
         </form>
       </div>
-    </div>
+    </ModalTransition>
   );
 }
