@@ -316,7 +316,7 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
                 <UserIcon className="h-8 w-8 mx-auto mb-2 text-gray-300" />
                 <p className="text-sm">No developers assigned to this project</p>
                 {isAuthenticated && (
-                  <p className="text-xs mt-2">Click "Add Developer" to get started</p>
+                  <p className="text-xs mt-2">Click &quot;Add Developer&quot; to get started</p>
                 )}
               </div>
             )}
