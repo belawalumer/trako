@@ -126,6 +126,7 @@ export async function getDevelopersWithAllocations() {
           *,
           project_allocations (
             id,
+            developer_id,
             hours_allocated,
             hours_worked,
             allocation_percentage,

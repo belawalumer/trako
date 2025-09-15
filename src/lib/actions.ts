@@ -251,14 +251,30 @@ export async function createProjectAllocation(formData: FormData) {
   const developerId = formData.get('developer_id') as string;
   const hoursAllocated = parseInt(formData.get('hours_allocated') as string) || 0;
   
-  // Get developer's weekly hours to calculate percentage
+  // Get developer's weekly hours and current allocations
   const { data: developer } = await supabase
     .from('developers')
-    .select('working_hours')
+    .select(`
+      working_hours,
+      project_allocations (hours_allocated)
+    `)
     .eq('id', developerId)
     .single();
   
   const weeklyHours = developer?.working_hours || 40;
+  
+  // Calculate current total allocated hours
+  const currentAllocations = developer?.project_allocations?.reduce(
+    (sum, alloc) => sum + (alloc.hours_allocated || 0), 0
+  ) || 0;
+  
+  const availableHours = weeklyHours - currentAllocations;
+  
+  // Validate that requested hours don't exceed available hours
+  if (hoursAllocated > availableHours) {
+    throw new Error(`Cannot allocate ${hoursAllocated}h. Developer has only ${availableHours}h available (${currentAllocations}h already allocated).`);
+  }
+  
   const allocationPercentage = Math.min((hoursAllocated / weeklyHours) * 100, 100);
   
   const allocationData = {
@@ -298,7 +314,7 @@ export async function updateProjectAllocation(id: string, formData: FormData) {
   // Get the developer ID from the existing allocation
   const { data: existingAllocation } = await supabase
     .from('project_allocations')
-    .select('developer_id')
+    .select('developer_id, hours_allocated')
     .eq('id', id)
     .single();
   
@@ -306,14 +322,35 @@ export async function updateProjectAllocation(id: string, formData: FormData) {
     throw new Error('Allocation not found');
   }
   
-  // Get developer's weekly hours to calculate percentage
+  // Get developer's weekly hours and current allocations
   const { data: developer } = await supabase
     .from('developers')
-    .select('working_hours')
+    .select(`
+      working_hours,
+      project_allocations (id, hours_allocated)
+    `)
     .eq('id', existingAllocation.developer_id)
     .single();
   
   const weeklyHours = developer?.working_hours || 40;
+  
+  // Calculate current total allocated hours (excluding the allocation being updated)
+  const currentAllocations = developer?.project_allocations?.reduce(
+    (sum, alloc) => {
+      if (alloc.id !== id) { // Exclude the allocation being updated
+        return sum + (alloc.hours_allocated || 0);
+      }
+      return sum;
+    }, 0
+  ) || 0;
+  
+  const availableHours = weeklyHours - currentAllocations;
+  
+  // Validate that requested hours don't exceed available hours
+  if (hoursAllocated > availableHours) {
+    throw new Error(`Cannot allocate ${hoursAllocated}h. Developer has only ${availableHours}h available (${currentAllocations}h already allocated).`);
+  }
+  
   const allocationPercentage = Math.min((hoursAllocated / weeklyHours) * 100, 100);
   
   const allocationData = {

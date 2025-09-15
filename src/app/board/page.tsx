@@ -5,13 +5,13 @@ import Layout from '@/components/Layout';
 import ProjectBoard from '@/components/ProjectBoard';
 import PageSkeleton from '@/components/PageSkeleton';
 import BoardActions from '@/components/BoardActions';
-import { getProjects, getDevelopers } from '@/lib/data';
+import { getProjects, getDevelopersWithAllocations } from '@/lib/data';
 
 async function BoardContent() {
   // Use optimized data fetching with caching
   const [projects, developers] = await Promise.all([
     getProjects(),
-    getDevelopers()
+    getDevelopersWithAllocations()
   ]);
 
   return (

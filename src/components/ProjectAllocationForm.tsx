@@ -31,17 +31,46 @@ export default function ProjectAllocationForm({
     allocation?.hours_allocated?.toString() || '0'
   );
 
+
   // Calculate allocation percentage based on selected developer's weekly hours
   const selectedDeveloper = developers.find(dev => dev.id === selectedDeveloperId);
   const weeklyHours = selectedDeveloper?.working_hours || 40;
+  
+  // Calculate developer's current total allocated hours across all projects
+  const getDeveloperCurrentAllocations = (developerId: string) => {
+    const developer = developers.find(dev => dev.id === developerId);
+    if (!developer || !developer.project_allocations) {
+      return 0;
+    }
+    
+    let totalAllocated = 0;
+    developer.project_allocations.forEach(alloc => {
+      // If editing existing allocation, exclude it from current total
+      if (!allocation || alloc.id !== allocation.id) {
+        totalAllocated += alloc.hours_allocated || 0;
+      }
+    });
+    
+    return totalAllocated;
+  };
+
+  const currentAllocations = selectedDeveloperId ? getDeveloperCurrentAllocations(selectedDeveloperId) : 0;
+  const availableHours = weeklyHours - currentAllocations;
+  const requestedHours = parseInt(hoursAllocated) || 0;
+  
   const allocationPercentage = selectedDeveloperId && hoursAllocated 
     ? Math.min((parseInt(hoursAllocated) / weeklyHours) * 100, 100).toFixed(1)
     : '0';
 
-  // Calculate available developers (not already allocated to this project)
+  // Calculate available developers (not already allocated to this project AND have available hours)
   const availableDevelopers = developers.filter(dev => {
     if (allocation && dev.id === allocation.developer_id) return true; // Allow current developer for editing
-    return !project.project_allocations?.some(alloc => alloc.developer_id === dev.id);
+    if (project.project_allocations?.some(alloc => alloc.developer_id === dev.id)) return false; // Already allocated to this project
+    
+    // Check if developer has available hours
+    const devCurrentAllocations = getDeveloperCurrentAllocations(dev.id);
+    const devAvailableHours = dev.working_hours - devCurrentAllocations;
+    return devAvailableHours > 0;
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,8 +90,8 @@ export default function ProjectAllocationForm({
       return;
     }
 
-    if (parseInt(hoursAllocated) > weeklyHours) {
-      setError(`Hours allocated cannot exceed developer's weekly hours (${weeklyHours}h)`);
+    if (requestedHours > availableHours) {
+      setError(`Hours allocated (${requestedHours}h) cannot exceed available hours (${availableHours}h). Developer has ${currentAllocations}h already allocated across other projects.`);
       setIsSubmitting(false);
       return;
     }
@@ -139,15 +168,28 @@ export default function ProjectAllocationForm({
               required
             >
               <option value="">Select a developer</option>
-              {availableDevelopers.map((developer) => (
-                <option key={developer.id} value={developer.id}>
-                  {developer.name} ({developer.email})
-                </option>
-              ))}
+              {availableDevelopers.map((developer) => {
+                const devCurrentAllocations = getDeveloperCurrentAllocations(developer.id);
+                const devAvailableHours = (developer.working_hours || 40) - devCurrentAllocations;
+                const isFullyAllocated = devAvailableHours <= 0;
+                
+                return (
+                  <option 
+                    key={developer.id} 
+                    value={developer.id}
+                    disabled={isFullyAllocated}
+                  >
+                    {developer.name} - {isFullyAllocated ? 'Fully Allocated' : `${devAvailableHours}h available`}
+                  </option>
+                );
+              })}
             </select>
             {availableDevelopers.length === 0 && (
               <p className="text-sm text-gray-500 mt-1">
-                All developers are already assigned to this project
+                {project.project_allocations?.length > 0 
+                  ? "All developers are already assigned to this project or have no available hours"
+                  : "No developers have available hours for allocation"
+                }
               </p>
             )}
           </div>
@@ -159,15 +201,19 @@ export default function ProjectAllocationForm({
             <input
               type="number"
               min="1"
-              max={weeklyHours}
+              max={availableHours}
               value={hoursAllocated}
               onChange={(e) => setHoursAllocated(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                requestedHours > availableHours ? 'border-red-300 focus:ring-red-500' : 'border-gray-300'
+              }`}
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Developer&apos;s weekly hours: {weeklyHours}h (max: {weeklyHours}h)
-            </p>
+            {requestedHours > availableHours && (
+              <p className="text-xs text-red-600 font-medium mt-1">
+                ⚠️ Cannot allocate {requestedHours}h - only {availableHours}h available
+              </p>
+            )}
           </div>
 
           <div>
@@ -195,7 +241,7 @@ export default function ProjectAllocationForm({
             </button>
             <button
               type="submit"
-              disabled={isSubmitting || availableDevelopers.length === 0}
+              disabled={isSubmitting || availableDevelopers.length === 0 || availableHours <= 0 || requestedHours > availableHours}
               className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? 'Saving...' : (allocation ? 'Update Allocation' : 'Assign Developer')}
