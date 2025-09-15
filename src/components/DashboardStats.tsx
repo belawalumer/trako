@@ -25,25 +25,25 @@ export default function DashboardStats({ projects, developers }: DashboardStatsP
     {
       name: 'Total Projects',
       value: totalProjects,
-      change: '+12%',
+      // change: '+12%',
       changeType: 'positive' as const,
     },
     {
       name: 'Active Projects',
       value: activeProjects,
-      change: '+4%',
+      // change: '+4%',
       changeType: 'positive' as const,
     },
     {
       name: 'Completed Projects',
       value: completedProjects,
-      change: '+8%',
+      // change: '+8%',
       changeType: 'positive' as const,
     },
     {
       name: 'Available Developers',
       value: `${availableDevelopers}/${totalDevelopers}`,
-      change: '+2',
+      // change: '+2',
       changeType: 'positive' as const,
     },
   ];

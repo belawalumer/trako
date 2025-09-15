@@ -10,9 +10,12 @@ export default function DeveloperStats({ developers, allocations }: DeveloperSta
   const availableDevelopers = developers.filter(d => d.is_available).length;
   const busyDevelopers = totalDevelopers - availableDevelopers;
 
+  // Filter out allocations where project is null (deleted project)
+  const validAllocations = allocations.filter(alloc => alloc.project);
+  
   // Calculate total hours allocated and worked
-  const totalHoursAllocated = allocations.reduce((sum, alloc) => sum + alloc.hours_allocated, 0);
-  const totalHoursWorked = allocations.reduce((sum, alloc) => sum + alloc.hours_worked, 0);
+  const totalHoursAllocated = validAllocations.reduce((sum, alloc) => sum + alloc.hours_allocated, 0);
+  const totalHoursWorked = validAllocations.reduce((sum, alloc) => sum + alloc.hours_worked, 0);
 
   // Calculate total available hours across all developers
   const calculateTotalAvailableHours = () => {
@@ -20,9 +23,11 @@ export default function DeveloperStats({ developers, allocations }: DeveloperSta
     developers.forEach(developer => {
       if (developer.is_available) {
         const workingHours = developer.working_hours || 40;
-        const currentAllocations = developer.project_allocations?.reduce(
+        // Filter out allocations where project is null (deleted project)
+        const validDeveloperAllocations = developer.project_allocations?.filter(alloc => alloc.project) || [];
+        const currentAllocations = validDeveloperAllocations.reduce(
           (sum, alloc) => sum + (alloc.hours_allocated || 0), 0
-        ) || 0;
+        );
         const availableHours = workingHours - currentAllocations;
         totalAvailableHours += Math.max(0, availableHours);
       }
@@ -33,15 +38,15 @@ export default function DeveloperStats({ developers, allocations }: DeveloperSta
   const totalAvailableHours = calculateTotalAvailableHours();
 
   // Calculate average allocation percentage
-  const avgAllocation = allocations.length > 0 
-    ? allocations.reduce((sum, alloc) => sum + alloc.allocation_percentage, 0) / allocations.length 
+  const avgAllocation = validAllocations.length > 0 
+    ? validAllocations.reduce((sum, alloc) => sum + alloc.allocation_percentage, 0) / validAllocations.length 
     : 0;
 
   const stats = [
     {
       name: 'Total Developers',
       value: totalDevelopers,
-      change: '+2',
+      // change: '+2',
       changeType: 'positive' as const,
     },
     {
@@ -53,7 +58,7 @@ export default function DeveloperStats({ developers, allocations }: DeveloperSta
     {
       name: 'Hours Allocated',
       value: totalHoursAllocated,
-      change: '+40h',
+      // change: '+40h',
       changeType: 'positive' as const,
     }
   ];

@@ -43,8 +43,11 @@ export default function ProjectAllocationForm({
       return 0;
     }
     
+    // Filter out allocations where project is null (deleted project)
+    const validAllocations = developer.project_allocations.filter(alloc => alloc.project);
+    
     let totalAllocated = 0;
-    developer.project_allocations.forEach(alloc => {
+    validAllocations.forEach(alloc => {
       // If editing existing allocation, exclude it from current total
       if (!allocation || alloc.id !== allocation.id) {
         totalAllocated += alloc.hours_allocated || 0;
@@ -65,7 +68,9 @@ export default function ProjectAllocationForm({
   // Calculate available developers (not already allocated to this project AND have available hours)
   const availableDevelopers = developers.filter(dev => {
     if (allocation && dev.id === allocation.developer_id) return true; // Allow current developer for editing
-    if (project.project_allocations?.some(alloc => alloc.developer_id === dev.id)) return false; // Already allocated to this project
+    // Filter out allocations where developer is null (deleted developer) when checking if already allocated
+    const validProjectAllocations = project.project_allocations?.filter(alloc => alloc.developer) || [];
+    if (validProjectAllocations.some(alloc => alloc.developer_id === dev.id)) return false; // Already allocated to this project
     
     // Check if developer has available hours
     const devCurrentAllocations = getDeveloperCurrentAllocations(dev.id);

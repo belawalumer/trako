@@ -63,11 +63,13 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
     }
   };
 
-  const assignedDevelopers = project.project_allocations?.length || 0;
+  // Filter out allocations where developer is null (deleted developer)
+  const validAllocations = project.project_allocations?.filter(alloc => alloc.developer) || [];
+  const assignedDevelopers = validAllocations.length;
   const totalTasks = project.tasks?.length || 0;
-  const totalAllocatedHours = project.project_allocations?.reduce(
+  const totalAllocatedHours = validAllocations.reduce(
     (sum, alloc) => sum + alloc.hours_allocated, 0
-  ) || 0;
+  );
 
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();

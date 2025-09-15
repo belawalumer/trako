@@ -69,7 +69,8 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
     onUpdate();
   };
 
-  const allocations = project.project_allocations || [];
+  // Filter out allocations where developer is null (deleted developer)
+  const allocations = project.project_allocations?.filter(alloc => alloc.developer) || [];
 
   return (
     <div className="space-y-4">

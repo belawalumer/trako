@@ -219,6 +219,9 @@ export async function deleteDeveloper(id: string) {
   // Invalidate cache
   revalidateTag('developers');
   revalidateTag('developers-with-allocations');
+  revalidateTag('projects');
+  revalidateTag('projects-with-tasks');
+  revalidateTag('allocations');
 }
 
 // Task Actions

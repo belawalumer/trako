@@ -115,17 +115,20 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
     }
   };
 
-  const totalAllocatedHours = project.project_allocations?.reduce(
+  // Filter out allocations where developer is null (deleted developer)
+  const validAllocations = project.project_allocations?.filter(alloc => alloc.developer) || [];
+  
+  const totalAllocatedHours = validAllocations.reduce(
     (sum, alloc) => sum + alloc.hours_allocated, 0
-  ) || 0;
+  );
 
-  const totalAllocationPercentage = project.project_allocations?.reduce(
+  const totalAllocationPercentage = validAllocations.reduce(
     (sum, alloc) => sum + alloc.allocation_percentage, 0
-  ) || 0;
+  );
 
   // Calculate average allocation per developer
-  const avgAllocationPerDeveloper = project.project_allocations?.length 
-    ? totalAllocationPercentage / project.project_allocations.length 
+  const avgAllocationPerDeveloper = validAllocations.length 
+    ? totalAllocationPercentage / validAllocations.length 
     : 0;
 
   return (
@@ -193,7 +196,7 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
                 <div className="ml-3">
                   <p className="text-sm font-medium text-gray-500">Assigned Developers</p>
                   <p className="text-2xl font-semibold text-gray-900">
-                    {project.project_allocations?.length || 0}
+                    {validAllocations.length}
                   </p>
                 </div>
               </div>
@@ -263,9 +266,9 @@ export default function ProjectDetails({ project, developers, onClose, onUpdate 
                 </button>
               )}
             </div>
-            {project.project_allocations && project.project_allocations.length > 0 ? (
+            {validAllocations.length > 0 ? (
               <div className="space-y-2">
-                {project.project_allocations.map((allocation) => {
+                {validAllocations.map((allocation) => {
                   const developer = developers.find(dev => dev.id === allocation.developer_id);
                   if (!developer) return null;
                   

@@ -13,7 +13,7 @@ export async function getProjects() {
         .from('projects')
         .select(`
           *,
-          project_allocations (
+          project_allocations!inner (
             id,
             developer_id,
             hours_allocated,
@@ -21,7 +21,7 @@ export async function getProjects() {
             allocation_percentage,
             start_date,
             end_date,
-            developer:developers (name, email)
+            developer:developers!inner (name, email)
           )
         `)
         .order('created_at', { ascending: false });
@@ -75,7 +75,7 @@ export async function getProjectsWithTasks() {
             due_date,
             created_at,
             updated_at,
-            assigned_developer:developers (name, email)
+            assigned_developer:developers!inner (name, email)
           )
         `)
         .order('created_at', { ascending: false });
@@ -130,7 +130,7 @@ export async function getDevelopersWithAllocations() {
             hours_allocated,
             hours_worked,
             allocation_percentage,
-            project:projects (name, status)
+            project:projects!inner (name, status)
           )
         `)
         .order('name');
@@ -154,8 +154,8 @@ export async function getAllocations() {
         .from('project_allocations')
         .select(`
           *,
-          project:projects (name, status),
-          developer:developers (name, email)
+          project:projects!inner (name, status),
+          developer:developers!inner (name, email)
         `);
       
       return allocations || [];

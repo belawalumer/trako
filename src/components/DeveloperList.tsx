@@ -34,11 +34,15 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
   };
 
   const calculateTotalAllocation = (allocations: ProjectAllocation[] | undefined) => {
-    return allocations?.reduce((sum, alloc) => sum + alloc.allocation_percentage, 0) || 0;
+    // Filter out allocations where project is null (deleted project)
+    const validAllocations = allocations?.filter(alloc => alloc.project) || [];
+    return validAllocations.reduce((sum, alloc) => sum + alloc.allocation_percentage, 0);
   };
 
   const calculateTotalHours = (allocations: ProjectAllocation[] | undefined) => {
-    return allocations?.reduce((sum, alloc) => sum + alloc.hours_allocated, 0) || 0;
+    // Filter out allocations where project is null (deleted project)
+    const validAllocations = allocations?.filter(alloc => alloc.project) || [];
+    return validAllocations.reduce((sum, alloc) => sum + alloc.hours_allocated, 0);
   };
 
   const handleDelete = async (id: string) => {
@@ -182,28 +186,32 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
                   </div>
                 </div>
 
-                {developer.project_allocations && developer.project_allocations.length > 0 && (
-                  <div>
-                    <p className="text-xs font-medium text-gray-700 mb-1">Active Projects:</p>
-                    <div className="space-y-1">
-                      {developer.project_allocations.slice(0, 2).map((allocation) => (
-                        <div key={allocation.id} className="flex items-center justify-between text-xs">
-                          <span className="text-gray-600 truncate">
-                            {allocation.project?.name}
-                          </span>
-                          <span className="text-gray-500">
-                            {allocation.allocation_percentage}%
-                          </span>
-                        </div>
-                      ))}
-                      {developer.project_allocations.length > 2 && (
-                        <p className="text-xs text-gray-500">
-                          +{developer.project_allocations.length - 2} more projects
-                        </p>
-                      )}
+                {(() => {
+                  // Filter out allocations where project is null (deleted project)
+                  const validAllocations = developer.project_allocations?.filter(alloc => alloc.project) || [];
+                  return validAllocations.length > 0 && (
+                    <div>
+                      <p className="text-xs font-medium text-gray-700 mb-1">Active Projects:</p>
+                      <div className="space-y-1">
+                        {validAllocations.slice(0, 2).map((allocation) => (
+                          <div key={allocation.id} className="flex items-center justify-between text-xs">
+                            <span className="text-gray-600 truncate">
+                              {allocation.project?.name}
+                            </span>
+                            <span className="text-gray-500">
+                              {allocation.allocation_percentage}%
+                            </span>
+                          </div>
+                        ))}
+                        {validAllocations.length > 2 && (
+                          <p className="text-xs text-gray-500">
+                            +{validAllocations.length - 2} more projects
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  );
+                })()}
 
                 {developer.working_hours && (
                   <div className="pt-2 border-t border-gray-200">
