@@ -7,12 +7,13 @@ import {
   UserIcon, 
   ClockIcon, 
   PencilIcon, 
-  TrashIcon, 
   PlusIcon,
   UserMinusIcon
 } from '@heroicons/react/24/outline';
 import { useIsAuthenticated } from '@/lib/auth-utils';
 import ProjectAllocationForm from './ProjectAllocationForm';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 import toast from 'react-hot-toast';
 
 interface ProjectAllocationsProps {
@@ -26,9 +27,18 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
   const [editingAllocation, setEditingAllocation] = useState<ProjectAllocation | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const { isAuthenticated } = useIsAuthenticated();
+  const { confirm, close, handleConfirm, isOpen: isConfirmOpen, options: confirmOptions } = useConfirm();
 
   const handleUnassign = async (allocationId: string) => {
-    if (!confirm('Are you sure you want to unassign this developer from the project?')) return;
+    const confirmed = await confirm({
+      title: 'Unassign Developer',
+      message: 'Are you sure you want to unassign this developer from the project?',
+      confirmText: 'Unassign',
+      cancelText: 'Cancel',
+      type: 'warning'
+    });
+    
+    if (!confirmed) return;
     
     setDeletingId(allocationId);
     try {
@@ -38,22 +48,6 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
     } catch (error) {
       console.error('Error unassigning developer:', error);
       toast.error('Failed to unassign developer from project');
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  const handleDelete = async (allocationId: string) => {
-    if (!confirm('Are you sure you want to permanently remove this allocation?')) return;
-    
-    setDeletingId(allocationId);
-    try {
-      await deleteProjectAllocation(allocationId);
-      toast.success('Allocation removed');
-      onUpdate();
-    } catch (error) {
-      console.error('Error deleting allocation:', error);
-      toast.error('Failed to remove allocation');
     } finally {
       setDeletingId(null);
     }
@@ -151,18 +145,10 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
                         <button
                           onClick={() => handleUnassign(allocation.id)}
                           disabled={deletingId === allocation.id}
-                          className="p-1 text-gray-400 hover:text-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                          className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                           title="Unassign developer"
                         >
                           <UserMinusIcon className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(allocation.id)}
-                          disabled={deletingId === allocation.id}
-                          className="p-1 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                          title="Remove allocation completely"
-                        >
-                          <TrashIcon className="h-4 w-4" />
                         </button>
                       </div>
                     )}
@@ -200,6 +186,18 @@ export default function ProjectAllocations({ project, developers, onUpdate }: Pr
           onSuccess={handleSuccess}
         />
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={close}
+        onConfirm={handleConfirm}
+        title={confirmOptions.title}
+        message={confirmOptions.message}
+        confirmText={confirmOptions.confirmText}
+        cancelText={confirmOptions.cancelText}
+        type={confirmOptions.type}
+      />
     </div>
   );
 }
