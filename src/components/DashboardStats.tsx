@@ -25,20 +25,14 @@ export default function DashboardStats({ projects, developers }: DashboardStatsP
     {
       name: 'Total Projects',
       value: totalProjects,
-      // change: '+12%',
-      changeType: 'positive' as const,
     },
     {
       name: 'Active Projects',
       value: activeProjects,
-      // change: '+4%',
-      changeType: 'positive' as const,
     },
     {
       name: 'Completed Projects',
       value: completedProjects,
-      // change: '+8%',
-      changeType: 'positive' as const,
     },
   ];
 
@@ -68,11 +62,6 @@ export default function DashboardStats({ projects, developers }: DashboardStatsP
                     <dd className="flex items-baseline">
                       <div className="text-2xl font-semibold text-gray-900">
                         {stat.value}
-                      </div>
-                      <div className={`ml-2 flex items-baseline text-sm font-semibold ${
-                        stat.changeType === 'positive' ? 'text-green-600' : 'text-red-600'
-                      }`}>
-                        {stat.change}
                       </div>
                     </dd>
                   </dl>
