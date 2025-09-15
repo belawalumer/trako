@@ -14,6 +14,24 @@ export default function DeveloperStats({ developers, allocations }: DeveloperSta
   const totalHoursAllocated = allocations.reduce((sum, alloc) => sum + alloc.hours_allocated, 0);
   const totalHoursWorked = allocations.reduce((sum, alloc) => sum + alloc.hours_worked, 0);
 
+  // Calculate total available hours across all developers
+  const calculateTotalAvailableHours = () => {
+    let totalAvailableHours = 0;
+    developers.forEach(developer => {
+      if (developer.is_available) {
+        const workingHours = developer.working_hours || 40;
+        const currentAllocations = developer.project_allocations?.reduce(
+          (sum, alloc) => sum + (alloc.hours_allocated || 0), 0
+        ) || 0;
+        const availableHours = workingHours - currentAllocations;
+        totalAvailableHours += Math.max(0, availableHours);
+      }
+    });
+    return totalAvailableHours;
+  };
+
+  const totalAvailableHours = calculateTotalAvailableHours();
+
   // Calculate average allocation percentage
   const avgAllocation = allocations.length > 0 
     ? allocations.reduce((sum, alloc) => sum + alloc.allocation_percentage, 0) / allocations.length 
@@ -27,9 +45,9 @@ export default function DeveloperStats({ developers, allocations }: DeveloperSta
       changeType: 'positive' as const,
     },
     {
-      name: 'Available Now',
-      value: availableDevelopers,
-      change: `${Math.round((availableDevelopers / totalDevelopers) * 100)}%`,
+      name: 'Available Hours',
+      value: `${totalAvailableHours}h`,
+      change: `${availableDevelopers} developers`,
       changeType: 'positive' as const,
     },
     {
@@ -37,13 +55,7 @@ export default function DeveloperStats({ developers, allocations }: DeveloperSta
       value: totalHoursAllocated,
       change: '+40h',
       changeType: 'positive' as const,
-    },
-    {
-      name: 'Hours Worked',
-      value: totalHoursWorked,
-      change: '+25h',
-      changeType: 'positive' as const,
-    },
+    }
   ];
 
   return (
@@ -58,9 +70,8 @@ export default function DeveloperStats({ developers, allocations }: DeveloperSta
                   <div className="w-8 h-8 bg-indigo-500 rounded-md flex items-center justify-center">
                     <span className="text-white text-sm font-medium">
                       {stat.name === 'Total Developers' && 'D'}
-                      {stat.name === 'Available Now' && 'A'}
+                      {stat.name === 'Available Hours' && 'A'}
                       {stat.name === 'Hours Allocated' && 'H'}
-                      {stat.name === 'Hours Worked' && 'W'}
                     </span>
                   </div>
                 </div>
@@ -106,12 +117,7 @@ export default function DeveloperStats({ developers, allocations }: DeveloperSta
               </div>
               <div className="text-sm text-gray-500">Active Allocations</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-semibold text-gray-900">
-                {Math.round((totalHoursWorked / totalHoursAllocated) * 100) || 0}%
-              </div>
-              <div className="text-sm text-gray-500">Completion Rate</div>
-            </div>
+            
           </div>
         </div>
       </div>
