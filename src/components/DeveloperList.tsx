@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Developer, ProjectAllocation } from '@/lib/supabase';
 import { UserIcon, CheckCircleIcon, XCircleIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import DeveloperForm from './DeveloperForm';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 import { deleteDeveloper } from '@/lib/actions';
 import { useIsAuthenticated } from '@/lib/auth-utils';
 import toast from 'react-hot-toast';
@@ -18,6 +20,7 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [localDevelopers, setLocalDevelopers] = useState<Developer[]>(developers);
   const { isAuthenticated } = useIsAuthenticated();
+  const { confirm, close, handleConfirm, isOpen: isConfirmOpen, options: confirmOptions } = useConfirm();
   const getAvailabilityColor = (isAvailable: boolean) => {
     return isAvailable 
       ? 'bg-green-100 text-green-800' 
@@ -39,7 +42,15 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this developer?')) return;
+    const confirmed = await confirm({
+      title: 'Delete Developer',
+      message: 'Are you sure you want to delete this developer? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    
+    if (!confirmed) return;
     
     setDeletingId(id);
     setIsLoading(true);
@@ -225,6 +236,18 @@ export default function DeveloperList({ developers }: DeveloperListProps) {
           }}
         />
       )}
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={close}
+        onConfirm={handleConfirm}
+        title={confirmOptions.title}
+        message={confirmOptions.message}
+        confirmText={confirmOptions.confirmText}
+        cancelText={confirmOptions.cancelText}
+        type={confirmOptions.type}
+      />
     </div>
   );
 }

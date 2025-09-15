@@ -13,6 +13,8 @@ import {
 } from '@heroicons/react/24/outline';
 import { deleteProject } from '@/lib/actions';
 import { useIsAuthenticated } from '@/lib/auth-utils';
+import ConfirmDialog from './ConfirmDialog';
+import { useConfirm } from '@/hooks/useConfirm';
 import toast from 'react-hot-toast';
 
 interface ProjectCardProps {
@@ -28,6 +30,7 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
   const [isEditing, setIsEditing] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const { isAuthenticated, loading } = useIsAuthenticated();
+  const { confirm, close, handleConfirm, isOpen: isConfirmOpen, options: confirmOptions } = useConfirm();
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: project.id,
   });
@@ -69,7 +72,16 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
   const handleDelete = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm('Are you sure you want to delete this project?')) return;
+    
+    const confirmed = await confirm({
+      title: 'Delete Project',
+      message: 'Are you sure you want to delete this project? This action cannot be undone.',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+      type: 'danger'
+    });
+    
+    if (!confirmed) return;
     
     setIsDeleting(true);
     try {
@@ -232,6 +244,18 @@ export default function ProjectCard({ project, developers, isOverlay = false, on
           )}
         </div>
       </div>
+
+      {/* Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={close}
+        onConfirm={handleConfirm}
+        title={confirmOptions.title}
+        message={confirmOptions.message}
+        confirmText={confirmOptions.confirmText}
+        cancelText={confirmOptions.cancelText}
+        type={confirmOptions.type}
+      />
     </div>
   );
 }
