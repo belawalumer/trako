@@ -35,8 +35,18 @@ function Layout({ children }: LayoutProps) {
   const { user, loading } = useAuth();
 
   const handleSignOut = useCallback(async () => {
-    await supabase.auth.signOut();
-    router.push('/');
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Error signing out:', error);
+      }
+      // Use window.location.href for a full page reload to clear any cached state
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Unexpected error during sign out:', error);
+      // Fallback to router if window.location fails
+      router.push('/');
+    }
   }, [supabase.auth, router]);
 
   const toggleSidebar = useCallback(() => {

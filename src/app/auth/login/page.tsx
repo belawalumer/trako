@@ -40,8 +40,15 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M8 16L14 22L24 10" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
           <h1 className="text-3xl font-bold text-gray-900">Sign In</h1>
-          <p className="mt-2 text-gray-600">Welcome back to your dashboard</p>
+          <p className="mt-2 text-sm text-gray-600">Welcome to Trako</p>
         </div>
         
         <div className="bg-white rounded-lg shadow-lg p-8">
@@ -89,20 +96,20 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
           
-          <div className="mt-6 text-center">
+          {/* <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
               Don&apos;t have an account?{' '}
-              {/* <Link href="/auth/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+              <Link href="/auth/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
                 Sign up here
-              </Link> */}
+              </Link>
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

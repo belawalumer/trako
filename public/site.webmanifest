@@ -1,0 +1,16 @@
+{
+  "name": "Trako - Project Management Dashboard",
+  "short_name": "Trako",
+  "description": "A comprehensive project management and developer allocation system",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "theme_color": "#007bff",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "start_url": "/"
+}

@@ -9,6 +9,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Trako - Project Management Dashboard",
   description: "A comprehensive project management and developer allocation system",
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/favicon.svg'
+  }
 };
 
 export default function RootLayout({
@@ -18,6 +22,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="manifest" href="/site.webmanifest" />
+      </head>
       <body className={inter.className}>
         <div className="min-h-screen bg-gray-50">
           <RouteTransition>
