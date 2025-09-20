@@ -13,7 +13,7 @@ export async function getProjects() {
         .from('projects')
         .select(`
           *,
-          project_allocations!inner (
+          project_allocations (
             id,
             developer_id,
             hours_allocated,
@@ -21,7 +21,7 @@ export async function getProjects() {
             allocation_percentage,
             start_date,
             end_date,
-            developer:developers!inner (name, email)
+            developer:developers (name, email)
           )
         `)
         .order('created_at', { ascending: false });
