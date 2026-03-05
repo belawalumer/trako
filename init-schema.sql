@@ -1,3 +1,15 @@
+-- Init schema for fresh Supabase project
+-- This file consolidates:
+-- - create-tables.sql
+-- - migration.sql
+-- - update-categories-to-array.sql
+-- - add-sort-order.sql
+--
+-- Run this on an empty database in your new Supabase project.
+
+-- Enable required extensions (if not already enabled in your project)
+create extension if not exists "pgcrypto";
+
 -- Create the developers table
 CREATE TABLE IF NOT EXISTS developers (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -11,7 +23,7 @@ CREATE TABLE IF NOT EXISTS developers (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create the projects table if it doesn't exist
+-- Create the projects table
 CREATE TABLE IF NOT EXISTS projects (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
@@ -25,7 +37,7 @@ CREATE TABLE IF NOT EXISTS projects (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create project_allocations table if it doesn't exist
+-- Create project_allocations table
 CREATE TABLE IF NOT EXISTS project_allocations (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -40,7 +52,7 @@ CREATE TABLE IF NOT EXISTS project_allocations (
   UNIQUE(project_id, developer_id)
 );
 
--- Create tasks table if it doesn't exist
+-- Create tasks table
 CREATE TABLE IF NOT EXISTS tasks (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
@@ -54,7 +66,32 @@ CREATE TABLE IF NOT EXISTS tasks (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- Create indexes for better performance
+-- Ensure full status set on projects (already used above, but keep explicit constraint name)
+ALTER TABLE projects DROP CONSTRAINT IF EXISTS projects_status_check;
+ALTER TABLE projects ADD CONSTRAINT projects_status_check 
+  CHECK (status IN ('active', 'started', 'completed', 'stopped', 'waiting_for_client_approval', 'gathering_requirements', 'client_not_responding', 'new_projects_in_pipeline'));
+
+-- Add category column to projects table if it doesn't exist (safe for reruns)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'projects' AND column_name = 'category') THEN
+    ALTER TABLE projects ADD COLUMN category VARCHAR(20) DEFAULT 'Web' CHECK (category IN ('Web', 'Mobile', 'UI/UX', 'Backend', 'DevOps', 'Other'));
+  END IF;
+END $$;
+
+-- Add categories array column (multi-category support)
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS categories TEXT[] DEFAULT '{}';
+
+-- Create index for categories array
+CREATE INDEX IF NOT EXISTS idx_projects_categories ON projects USING GIN (categories);
+
+-- Add sort_order field to projects table for drag and drop reordering
+ALTER TABLE projects ADD COLUMN IF NOT EXISTS sort_order INTEGER DEFAULT 0;
+
+-- Create index for better performance when ordering by status and sort_order
+CREATE INDEX IF NOT EXISTS idx_projects_status_sort_order ON projects(status, sort_order);
+
+-- Create basic indexes
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
 CREATE INDEX IF NOT EXISTS idx_projects_priority ON projects(priority);
 CREATE INDEX IF NOT EXISTS idx_developers_available ON developers(is_available);
@@ -64,7 +101,7 @@ CREATE INDEX IF NOT EXISTS idx_tasks_project_id ON tasks(project_id);
 CREATE INDEX IF NOT EXISTS idx_tasks_status ON tasks(status);
 CREATE INDEX IF NOT EXISTS idx_tasks_assigned_developer ON tasks(assigned_developer_id);
 
--- Create updated_at trigger function
+-- updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -73,7 +110,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
--- Create triggers for updated_at
+-- Triggers for updated_at
 DROP TRIGGER IF EXISTS update_projects_updated_at ON projects;
 CREATE TRIGGER update_projects_updated_at BEFORE UPDATE ON projects
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -90,5 +127,3 @@ DROP TRIGGER IF EXISTS update_tasks_updated_at ON tasks;
 CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON tasks
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Tables created successfully!
--- You can now add your own data through the application interface.
