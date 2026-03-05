@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+type ExtendedNextConfig = NextConfig & {
+  eslint?: {
+    ignoreDuringBuilds?: boolean;
+  };
+};
+
+const nextConfig: ExtendedNextConfig = {
   experimental: {
     optimizePackageImports: ['@heroicons/react', 'lucide-react'],
     serverComponentsExternalPackages: ['@supabase/supabase-js'],

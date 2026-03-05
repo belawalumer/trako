@@ -1,6 +1,6 @@
 'use server';
 
-import { revalidateTag } from 'next/cache';
+import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase-server';
 import { Project } from '@/lib/supabase';
 import { redirect } from 'next/navigation';
@@ -47,8 +47,7 @@ export async function createProject(formData: FormData) {
   }
 
   // Invalidate cache
-  revalidateTag('projects');
-  revalidateTag('projects-with-tasks');
+  revalidatePath('/', 'layout');
   
   return data;
 }
@@ -84,8 +83,7 @@ export async function updateProject(id: string, formData: FormData) {
   }
 
   // Invalidate cache
-  revalidateTag('projects');
-  revalidateTag('projects-with-tasks');
+  revalidatePath('/', 'layout');
   
   return data;
 }
@@ -104,8 +102,7 @@ export async function deleteProject(id: string) {
   }
 
   // Invalidate cache
-  revalidateTag('projects');
-  revalidateTag('projects-with-tasks');
+  revalidatePath('/', 'layout');
 }
 
 export async function updateProjectStatus(id: string, formData: FormData) {
@@ -134,8 +131,7 @@ export async function updateProjectStatus(id: string, formData: FormData) {
   console.log('Server action - update successful:', data);
 
   // Invalidate cache
-  revalidateTag('projects');
-  revalidateTag('projects-with-tasks');
+  revalidatePath('/', 'layout');
   
   return data;
 }
@@ -165,8 +161,7 @@ export async function createDeveloper(formData: FormData) {
   }
 
   // Invalidate cache
-  revalidateTag('developers');
-  revalidateTag('developers-with-allocations');
+  revalidatePath('/', 'layout');
   
   return data;
 }
@@ -197,8 +192,7 @@ export async function updateDeveloper(id: string, formData: FormData) {
   }
 
   // Invalidate cache
-  revalidateTag('developers');
-  revalidateTag('developers-with-allocations');
+  revalidatePath('/', 'layout');
   
   return data;
 }
@@ -217,11 +211,7 @@ export async function deleteDeveloper(id: string) {
   }
 
   // Invalidate cache
-  revalidateTag('developers');
-  revalidateTag('developers-with-allocations');
-  revalidateTag('projects');
-  revalidateTag('projects-with-tasks');
-  revalidateTag('allocations');
+  revalidatePath('/', 'layout');
 }
 
 // Task Actions
@@ -242,8 +232,7 @@ export async function updateTaskStatus(taskId: string, status: string) {
   }
 
   // Invalidate cache
-  revalidateTag('projects-with-tasks');
-  revalidateTag('recent-tasks');
+  revalidatePath('/', 'layout');
 }
 
 // Project Allocation Actions
@@ -300,10 +289,7 @@ export async function createProjectAllocation(formData: FormData) {
   }
 
   // Invalidate cache
-  revalidateTag('projects');
-  revalidateTag('developers');
-  revalidateTag('developers-with-allocations');
-  revalidateTag('allocations');
+  revalidatePath('/', 'layout');
   
   return data;
 }
@@ -376,10 +362,7 @@ export async function updateProjectAllocation(id: string, formData: FormData) {
   }
 
   // Invalidate cache
-  revalidateTag('projects');
-  revalidateTag('developers');
-  revalidateTag('developers-with-allocations');
-  revalidateTag('allocations');
+  revalidatePath('/', 'layout');
   
   return data;
 }
@@ -398,8 +381,5 @@ export async function deleteProjectAllocation(id: string) {
   }
 
   // Invalidate cache
-  revalidateTag('projects');
-  revalidateTag('developers');
-  revalidateTag('developers-with-allocations');
-  revalidateTag('allocations');
+  revalidatePath('/', 'layout');
 }
