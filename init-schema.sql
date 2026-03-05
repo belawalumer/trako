@@ -127,3 +127,112 @@ DROP TRIGGER IF EXISTS update_tasks_updated_at ON tasks;
 CREATE TRIGGER update_tasks_updated_at BEFORE UPDATE ON tasks
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
+-- Enable Row Level Security on all tables
+ALTER TABLE developers ENABLE ROW LEVEL SECURITY;
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_allocations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for developers table
+-- Allow authenticated users to read all developers
+CREATE POLICY "Allow authenticated users to read developers"
+  ON developers FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Allow authenticated users to insert developers
+CREATE POLICY "Allow authenticated users to insert developers"
+  ON developers FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+-- Allow authenticated users to update developers
+CREATE POLICY "Allow authenticated users to update developers"
+  ON developers FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Allow authenticated users to delete developers
+CREATE POLICY "Allow authenticated users to delete developers"
+  ON developers FOR DELETE
+  TO authenticated
+  USING (true);
+
+-- RLS Policies for projects table
+-- Allow authenticated users to read all projects
+CREATE POLICY "Allow authenticated users to read projects"
+  ON projects FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Allow authenticated users to insert projects
+CREATE POLICY "Allow authenticated users to insert projects"
+  ON projects FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+-- Allow authenticated users to update projects
+CREATE POLICY "Allow authenticated users to update projects"
+  ON projects FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Allow authenticated users to delete projects
+CREATE POLICY "Allow authenticated users to delete projects"
+  ON projects FOR DELETE
+  TO authenticated
+  USING (true);
+
+-- RLS Policies for project_allocations table
+-- Allow authenticated users to read all project allocations
+CREATE POLICY "Allow authenticated users to read project_allocations"
+  ON project_allocations FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Allow authenticated users to insert project allocations
+CREATE POLICY "Allow authenticated users to insert project_allocations"
+  ON project_allocations FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+-- Allow authenticated users to update project allocations
+CREATE POLICY "Allow authenticated users to update project_allocations"
+  ON project_allocations FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Allow authenticated users to delete project allocations
+CREATE POLICY "Allow authenticated users to delete project_allocations"
+  ON project_allocations FOR DELETE
+  TO authenticated
+  USING (true);
+
+-- RLS Policies for tasks table
+-- Allow authenticated users to read all tasks
+CREATE POLICY "Allow authenticated users to read tasks"
+  ON tasks FOR SELECT
+  TO authenticated
+  USING (true);
+
+-- Allow authenticated users to insert tasks
+CREATE POLICY "Allow authenticated users to insert tasks"
+  ON tasks FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+-- Allow authenticated users to update tasks
+CREATE POLICY "Allow authenticated users to update tasks"
+  ON tasks FOR UPDATE
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
+
+-- Allow authenticated users to delete tasks
+CREATE POLICY "Allow authenticated users to delete tasks"
+  ON tasks FOR DELETE
+  TO authenticated
+  USING (true);
